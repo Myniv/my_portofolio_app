@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:my_portofolio_app/bottom_navbar.dart';
+import 'package:my_portofolio_app/custom_appbar.dart';
+import 'package:my_portofolio_app/profile_page.dart';
 
 void main() {
   runApp(const MainApp());
@@ -9,11 +12,11 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       home: Scaffold(
-        body: Center(
-          child: Text('Hello World!'),
-        ),
+        appBar: CustomAppbar(),
+        body: ProfilePage(),
+        bottomNavigationBar: CustomBottomNavbar(),
       ),
     );
   }
