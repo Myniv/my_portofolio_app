@@ -2,19 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:my_portofolio_app/profile.dart';
 
 class ProfilePage extends StatelessWidget {
-  const ProfilePage({Key? key}) : super(key: key);
+  const ProfilePage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            buildProfileHeader(),
-            buildProfileInfo(),
-            buildProfileBio(),
-          ],
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                buildProfileHeader(),
+                buildProfileInfo(),
+                buildProfileBio(),
+              ],
+            ),
+          ),
         ),
       ),
     );
