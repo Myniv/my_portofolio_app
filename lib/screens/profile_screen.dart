@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_portofolio_app/models/profile.dart';
+import 'package:my_portofolio_app/screens/edit_profile_screen.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -50,6 +51,18 @@ class ProfilePage extends StatelessWidget {
                 ),
                 buildProfileInfo(),
                 buildProfileBio(),
+                SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => EditProfileScreen(name: "Budi",),
+                      ),
+                    );
+                  },
+                  child: Text("Edit Profile Screen"),
+                ),
               ],
             ),
           ),
