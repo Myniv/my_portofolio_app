@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:my_portofolio_app/bottom_navbar.dart';
-import 'package:my_portofolio_app/custom_appbar.dart';
-import 'package:my_portofolio_app/profile_page.dart';
+import 'package:my_portofolio_app/widgets/bottom_navbar.dart';
+import 'package:my_portofolio_app/widgets/custom_appbar.dart';
+import 'package:my_portofolio_app/screens/profile_screen.dart';
 
 void main() {
   runApp(const MainApp());
