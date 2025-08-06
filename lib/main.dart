@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:my_portofolio_app/screens/about_screen.dart';
+import 'package:my_portofolio_app/screens/portofolio_screen.dart';
 import 'package:my_portofolio_app/screens/home_screen.dart';
 import 'package:my_portofolio_app/widgets/bottom_navbar.dart';
 import 'package:my_portofolio_app/widgets/custom_appbar.dart';
@@ -41,19 +41,33 @@ class _MainScreenState extends State<MainScreen> {
     setState(() => _currentIndex = index);
   }
 
-  final List<Widget> _screens = [HomeScreen(), ProfilePage(), AboutScreen()];
-
+  final List<String> _titleScreen = ["Home", "Profile", "Portofolio"];
+  final List<IconData> _iconScreen = [Icons.home, Icons.person, Icons.work];
+  final List<Widget> _screens = [
+    HomeScreen(),
+    ProfilePage(),
+    PortofolioScreen(),
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppbar(currentIndex: _currentIndex),
+      appBar: CustomAppbar(
+        currentIndex: _currentIndex,
+        title: _titleScreen[_currentIndex],
+      ),
       body: _screens[_currentIndex],
       bottomNavigationBar: CustomBottomNavbar(
         currentIndex: _currentIndex,
         onTap: _changeTab,
+        title: _titleScreen,
+        icon: _iconScreen,
       ),
-      drawer: CustomDrawer(onSelect: _changeTab),
+      drawer: CustomDrawer(
+        onSelect: _changeTab,
+        title: _titleScreen,
+        icon: _iconScreen,
+      ),
     );
   }
 }

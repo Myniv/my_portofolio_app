@@ -2,8 +2,14 @@ import 'package:flutter/material.dart';
 
 class CustomDrawer extends StatelessWidget {
   final Function(int) _changeTab;
-  const CustomDrawer({super.key, required dynamic Function(int) onSelect})
-    : _changeTab = onSelect;
+  final List<String> title;
+  final List<IconData> icon;
+  const CustomDrawer({
+    super.key,
+    required dynamic Function(int) onSelect,
+    required this.title,
+    required this.icon,
+  }) : _changeTab = onSelect;
 
   @override
   Widget build(BuildContext context) {
@@ -11,8 +17,8 @@ class CustomDrawer extends StatelessWidget {
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
-          Container(
-            height: 70,
+          SizedBox(
+            height: 100,
             child: DrawerHeader(
               decoration: BoxDecoration(color: Colors.blueAccent),
               child: Row(
@@ -24,35 +30,23 @@ class CustomDrawer extends StatelessWidget {
                       Navigator.of(context).pop();
                     },
                   ),
-                  Text('Drawer Menu', style: TextStyle(color: Colors.white)),
+                  Text(
+                    'Drawer Menu',
+                    style: Theme.of(context).textTheme.bodyLarge,
+                  ),
                 ],
               ),
             ),
           ),
-          ListTile(
-            leading: Icon(Icons.home),
-            title: Text('Home'),
-            onTap: () {
-              _changeTab(0);
-              Navigator.pop(context);
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.person),
-            title: Text('Profile'),
-            onTap: () {
-              _changeTab(1);
-              Navigator.pop(context);
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.info),
-            title: Text('About'),
-            onTap: () {
-              _changeTab(2);
-              Navigator.pop(context);
-            },
-          ),
+          for (int i = 0; i < title.length; i++)
+            ListTile(
+              leading: Icon(icon[i]),
+              title: Text(title[i]),
+              onTap: () {
+                _changeTab(i);
+                Navigator.pop(context);
+              },
+            ),
         ],
       ),
     );
