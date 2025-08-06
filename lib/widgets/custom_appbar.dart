@@ -7,21 +7,17 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    final List<String> _titles = ["Home", "Profile", "About"];
+    final List<String> titles = ["Home", "Profile", "About"];
     return AppBar(
       backgroundColor: Colors.blueAccent,
       centerTitle: true,
-      title: Text(_titles[currentIndex], style: TextStyle(color: Colors.white)),
-      // leading: IconButton(
-      //   icon: Icon(Icons.arrow_back, color: Colors.white),
-      //   onPressed: () {},
-      // ),
-      // actions: [
-      //   IconButton(
-      //     icon: Icon(Icons.edit, color: Colors.white),
-      //     onPressed: () {},
-      //   ),
-      // ],
+      title: Text(titles[currentIndex], style: TextStyle(color: Colors.white)),
+      leading: Builder(
+        builder: (context) => IconButton(
+          onPressed: () => Scaffold.of(context).openDrawer(),
+          icon: Icon(Icons.menu, color: Colors.white),
+        ),
+      ),
     );
   }
 

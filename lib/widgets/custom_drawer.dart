@@ -11,9 +11,23 @@ class CustomDrawer extends StatelessWidget {
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
-          DrawerHeader(
-            decoration: BoxDecoration(color: Colors.blueAccent),
-            child: Text('Drawer Menu', style: TextStyle(color: Colors.white)),
+          Container(
+            height: 70,
+            child: DrawerHeader(
+              decoration: BoxDecoration(color: Colors.blueAccent),
+              child: Row(
+                // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.menu_open, color: Colors.white),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                  Text('Drawer Menu', style: TextStyle(color: Colors.white)),
+                ],
+              ),
+            ),
           ),
           ListTile(
             leading: Icon(Icons.home),
