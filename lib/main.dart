@@ -4,6 +4,7 @@ import 'package:my_portofolio_app/screens/home_screen.dart';
 import 'package:my_portofolio_app/widgets/bottom_navbar.dart';
 import 'package:my_portofolio_app/widgets/custom_appbar.dart';
 import 'package:my_portofolio_app/screens/profile_screen.dart';
+import 'package:my_portofolio_app/widgets/custom_drawer.dart';
 
 void main() {
   runApp(const MainApp());
@@ -40,71 +41,17 @@ class _MainScreenState extends State<MainScreen> {
 
   final List<Widget> _screens = [HomeScreen(), ProfilePage(), AboutScreen()];
 
-  final List<String> _titles = ["Home", "Profile", "About"];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          _titles[_currentIndex],
-          style: TextStyle(color: Colors.white),
-        ),
-        centerTitle: true,
-        backgroundColor: Colors.blueAccent,
-      ),
+      appBar: CustomAppbar(currentIndex: _currentIndex),
       body: _screens[_currentIndex],
-      bottomNavigationBar: BottomNavigationBar(
+      bottomNavigationBar: CustomBottomNavbar(
         currentIndex: _currentIndex,
         onTap: _changeTab,
-        backgroundColor: Colors.transparent,
-        elevation: 0, // Remove shadow
-        selectedItemColor: Colors.blueAccent,
-        unselectedItemColor: Colors.blueGrey,
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Settings',
-          ),
-        ],
       ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            DrawerHeader(
-              decoration: BoxDecoration(color: Colors.blueAccent),
-              child: Text('Drawer Menu', style: TextStyle(color: Colors.white)),
-            ),
-            ListTile(
-              leading: Icon(Icons.home),
-              title: Text('Home'),
-              onTap: () {
-                _changeTab(0);
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.person),
-              title: Text('Profile'),
-              onTap: () {
-                _changeTab(1);
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.info),
-              title: Text('About'),
-              onTap: () {
-                _changeTab(2);
-                Navigator.pop(context);
-              },
-            ),
-          ],
-        ),
-      ),
+      drawer: CustomDrawer(onSelect: _changeTab),
     );
   }
 }

@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
 
 class CustomBottomNavbar extends StatelessWidget {
-  const CustomBottomNavbar({super.key});
+  final int currentIndex;
+  final Function(int) onTap;
+
+  const CustomBottomNavbar({
+    super.key,
+    required this.currentIndex,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -23,6 +30,8 @@ class CustomBottomNavbar extends StatelessWidget {
             // border: Border(top: BorderSide(color: Colors.purpleAccent, width: 2)),
           ),
           child: BottomNavigationBar(
+            currentIndex: currentIndex,
+            onTap: onTap,
             backgroundColor: Colors.transparent,
             elevation: 0, // Remove shadow
             selectedItemColor: Colors.blueAccent,
