@@ -7,11 +7,15 @@ class EditProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(colors: [Colors.blueAccent, Colors.blueGrey]),
+      ),
+      alignment: Alignment.center,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text('Edit Profile Screen $name', style: TextStyle(fontSize: 24)),
+          Text('Edit Profile Screen $name', style: TextStyle(fontSize: 24, color: Colors.white)),
           SizedBox(height: 20),
           ElevatedButton(
             onPressed: () {

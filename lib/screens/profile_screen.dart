@@ -14,55 +14,9 @@ class ProfilePage extends StatelessWidget {
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: [
-                Container(
-                  padding: const EdgeInsets.all(10.0),
-                  // width: 500,
-                  height: 230,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [Colors.blueAccent, Colors.blueGrey],
-                    ),
-                    // color: const Color.fromARGB(255, 157, 121, 108),
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      // BoxShadow(
-                      //   color: Colors.black26,
-                      //   blurRadius: 10,
-                      //   offset: Offset(0, 5),
-                      // ),
-                    ],
-                  ),
-                  child: Stack(
-                    children: [
-                      Align(
-                        alignment: Alignment.center,
-                        child: buildProfileHeader(),
-                      ),
-                      Positioned(
-                        top: 0,
-                        right: 0,
-                        child: IconButton(
-                          icon: Icon(Icons.edit, color: Colors.white),
-                          onPressed: () {},
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                buildProfileInfo(),
-                buildProfileBio(),
-                SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => EditProfileScreen(name: "Budi",),
-                      ),
-                    );
-                  },
-                  child: Text("Edit Profile Screen"),
-                ),
+                buildProfileHeader(context),
+                buildProfileInfo(context),
+                buildProfileBio(context),
               ],
             ),
           ),
@@ -71,46 +25,106 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
-  Widget buildProfileHeader() {
+  Widget buildProfileHeader(BuildContext context) {
     final profile = Profile();
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        // mainAxisAlignment: MainAxisAlignment.center,
+    return Container(
+      padding: const EdgeInsets.all(10.0),
+      // width: 500,
+      height: 230,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(colors: [Colors.blueAccent, Colors.blueGrey]),
+        // color: const Color.fromARGB(255, 157, 121, 108),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          // BoxShadow(
+          //   color: Colors.black26,
+          //   blurRadius: 10,
+          //   offset: Offset(0, 5),
+          // ),
+        ],
+      ),
+      child: Stack(
         children: [
-          CircleAvatar(
-            radius: 50,
-            backgroundImage: AssetImage('assets/images/profile.png'),
-          ),
-          SizedBox(height: 10),
-          Text(
-            profile.name,
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+          Align(
+            alignment: Alignment.center,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                // mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircleAvatar(
+                    radius: 50,
+                    backgroundImage: AssetImage('assets/images/profile.png'),
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    profile.name,
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  SizedBox(height: 5),
+                  Text(
+                    profile.profession,
+                    style: TextStyle(fontSize: 16, color: Colors.white),
+                  ),
+                ],
+              ),
             ),
           ),
-          SizedBox(height: 5),
-          Text(
-            profile.profession,
-            style: TextStyle(fontSize: 16, color: Colors.white),
+          Positioned(
+            top: 0,
+            right: 0,
+            child: IconButton(
+              icon: Icon(Icons.edit, color: Colors.white),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => EditProfileScreen(name: "Budi"),
+                  ),
+                );
+              },
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget buildProfileInfo() {
+  Widget buildProfileInfo(BuildContext context) {
     final profile = Profile();
 
     return Padding(
       padding: const EdgeInsets.only(left: 10.0, right: 10.0, top: 30.0),
       child: Column(
         children: [
-          buildInfoBox(Icons.email, profile.email, "Email", () {}),
-          buildInfoBox(Icons.phone, profile.phone, "Phone Number", () {}),
-          buildInfoBox(Icons.location_on, profile.address, "Address", () {}),
+          buildInfoBox(Icons.email, profile.email, "Email", () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => EditProfileScreen(name: "Budi"),
+              ),
+            );
+          }),
+          buildInfoBox(Icons.phone, profile.phone, "Phone Number", () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => EditProfileScreen(name: "Budi"),
+              ),
+            );
+          }),
+          buildInfoBox(Icons.location_on, profile.address, "Address", () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => EditProfileScreen(name: "Budi"),
+              ),
+            );
+          }),
           // buildInfoBox(Icons.info, profile.bio, () {}),
         ],
       ),
@@ -164,7 +178,7 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
-  Widget buildProfileBio() {
+  Widget buildProfileBio(BuildContext context) {
     final profile = Profile();
     return Padding(
       padding: const EdgeInsets.only(left: 10.0, right: 10.0),
@@ -202,7 +216,14 @@ class ProfilePage extends StatelessWidget {
                 ),
                 IconButton(
                   icon: Icon(Icons.edit, color: Colors.blueAccent),
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => EditProfileScreen(name: "Budi"),
+                      ),
+                    );
+                  },
                 ),
               ],
             ),
