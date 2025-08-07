@@ -107,6 +107,7 @@ class PortofolioScreen extends StatelessWidget {
             "This is the project",
             style: TextStyle(color: Colors.grey),
           ),
+          initiallyExpanded: true,
           children: [
             Padding(
               padding: const EdgeInsets.all(8.0),
@@ -141,6 +142,7 @@ class PortofolioScreen extends StatelessWidget {
             "This is the sertification",
             style: TextStyle(color: Colors.grey),
           ),
+          initiallyExpanded: true,
           children: [
             Padding(
               padding: const EdgeInsets.all(3.0),
