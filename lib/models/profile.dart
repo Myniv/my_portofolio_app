@@ -1,9 +1,21 @@
 class Profile {
-  var name = "Mulyana N";
-  var profession = "Flutter Developer";
-  var email = "mulyanan@solecode.id";
-  var phone = "08123456789";
-  var address = "Tangerang, Indonesia";
-  var bio =
-      "Passionate mobile developer with 3+ years experience in Flutter and React Native. Love creating beautiful and functional mobile applications.";
+  String name;
+  String profession;
+  String email;
+  int phone;
+  String address;
+  String bio;
+  DateTime birthday;
+
+  Profile({
+    this.name = 'Mulyana',
+    this.profession = 'Flutter Developer',
+    this.email = 'mulyanan@solecode.com',
+    this.phone = 085770302069,
+    this.address = 'Binong Permai',
+    this.bio = 'waegsehdrfjtgkyhuj',
+    DateTime? birthday,
+  }) : birthday = birthday ?? DateTime.now();
 }
+
+final profile = Profile(); 
