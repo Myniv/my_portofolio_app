@@ -53,7 +53,6 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppbar(
-        currentIndex: _currentIndex,
         title: _titleScreen[_currentIndex],
       ),
       body: _screens[_currentIndex],
