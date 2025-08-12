@@ -128,7 +128,6 @@ class _ProfilePage extends StatelessWidget {
                   value: context.read<ProfileProvider>(),
                   child: EditProfileScreen(
                     value: profile.email,
-                    value2: '',
                     profileField: ProfileField.email,
                     title: "Edit Email",
                   ),
@@ -148,7 +147,6 @@ class _ProfilePage extends StatelessWidget {
                     value: context.read<ProfileProvider>(),
                     child: EditProfileScreen(
                       value: profile.phone.toString(),
-                      value2: '',
                       profileField: ProfileField.phone,
                       title: "Edit Phone Number",
                     ),
@@ -165,7 +163,6 @@ class _ProfilePage extends StatelessWidget {
                   value: context.read<ProfileProvider>(),
                   child: EditProfileScreen(
                     value: profile.address,
-                    value2: '',
                     profileField: ProfileField.address,
                     title: "Edit Address",
                   ),
@@ -181,7 +178,6 @@ class _ProfilePage extends StatelessWidget {
                   value: context.read<ProfileProvider>(),
                   child: EditProfileScreen(
                     value: profile.bio,
-                    value2: '',
                     profileField: ProfileField.bio,
                     title: "Edit About Me",
                   ),
@@ -290,7 +286,6 @@ class _ProfilePage extends StatelessWidget {
                           value: context.read<ProfileProvider>(),
                           child: EditProfileScreen(
                             value: profile.bio,
-                            value2: '',
                             profileField: ProfileField.bio,
                             title: "Edit Biography",
                           ),

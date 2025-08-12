@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:my_portofolio_app/providers/profile_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:my_portofolio_app/widgets/custom_appbar.dart';
@@ -36,6 +37,14 @@ class EditProfileScreen extends StatelessWidget {
             TextField(
               controller: _controller,
               decoration: InputDecoration(labelText: "${title}"),
+              keyboardType: profileField == ProfileField.phone
+                  ? TextInputType.number
+                  : profileField == ProfileField.email
+                  ? TextInputType.emailAddress
+                  : TextInputType.text,
+              inputFormatters: profileField == ProfileField.phone
+                  ? [FilteringTextInputFormatter.digitsOnly]
+                  : [],
             ),
             SizedBox(height: 20),
             if (value2 != null) ...[
