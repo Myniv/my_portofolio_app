@@ -1,9 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:my_portofolio_app/providers/profile_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:my_portofolio_app/models/profile.dart';
 import 'package:my_portofolio_app/screens/edit_profile_screen.dart';
 
 class ProfilePage extends StatelessWidget {
-  const ProfilePage({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (_) => ProfileProvider(),
+      child: _ProfilePage(),
+    );
+  }
+}
+
+class _ProfilePage extends StatelessWidget {
+  const _ProfilePage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +38,7 @@ class ProfilePage extends StatelessWidget {
   }
 
   Widget buildProfileHeader(BuildContext context) {
-    final profile = Profile();
+    final profile = context.watch<ProfileProvider>().profile;
     return Container(
       padding: const EdgeInsets.all(10.0),
       // width: 500,
@@ -83,7 +95,15 @@ class ProfilePage extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => EditProfileScreen(name: "Budi"),
+                    builder: (_) => ChangeNotifierProvider.value(
+                      value: context.read<ProfileProvider>(),
+                      child: EditProfileScreen(
+                        value: profile.name,
+                        value2: profile.profession,
+                        profileField: ProfileField.nameProfession,
+                        title: "Edit Name and Profession",
+                      ),
+                    ),
                   ),
                 );
               },
@@ -95,8 +115,7 @@ class ProfilePage extends StatelessWidget {
   }
 
   Widget buildProfileInfo(BuildContext context) {
-    final profile = Profile();
-
+    final profile = context.watch<ProfileProvider>().profile;
     return Padding(
       padding: const EdgeInsets.only(left: 10.0, right: 10.0, top: 30.0),
       child: Column(
@@ -105,23 +124,68 @@ class ProfilePage extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => EditProfileScreen(name: "Budi"),
+                builder: (_) => ChangeNotifierProvider.value(
+                  value: context.read<ProfileProvider>(),
+                  child: EditProfileScreen(
+                    value: profile.email,
+                    value2: '',
+                    profileField: ProfileField.email,
+                    title: "Edit Email",
+                  ),
+                ),
               ),
             );
           }),
-          buildInfoBox(Icons.phone, profile.phone, "Phone Number", () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => EditProfileScreen(name: "Budi"),
-              ),
-            );
-          }),
+          buildInfoBox(
+            Icons.phone,
+            profile.phone.toString(),
+            "Phone Number",
+            () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => ChangeNotifierProvider.value(
+                    value: context.read<ProfileProvider>(),
+                    child: EditProfileScreen(
+                      value: profile.phone.toString(),
+                      value2: '',
+                      profileField: ProfileField.phone,
+                      title: "Edit Phone Number",
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
           buildInfoBox(Icons.location_on, profile.address, "Address", () {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => EditProfileScreen(name: "Budi"),
+                builder: (_) => ChangeNotifierProvider.value(
+                  value: context.read<ProfileProvider>(),
+                  child: EditProfileScreen(
+                    value: profile.address,
+                    value2: '',
+                    profileField: ProfileField.address,
+                    title: "Edit Address",
+                  ),
+                ),
+              ),
+            );
+          }),
+          buildInfoBox(null,profile.bio, "About Me", () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => ChangeNotifierProvider.value(
+                  value: context.read<ProfileProvider>(),
+                  child: EditProfileScreen(
+                    value: profile.bio,
+                    value2: '',
+                    profileField: ProfileField.bio,
+                    title: "Edit About Me",
+                  ),
+                ),
               ),
             );
           }),
@@ -132,7 +196,7 @@ class ProfilePage extends StatelessWidget {
   }
 
   Widget buildInfoBox(
-    IconData leadingIcon,
+    IconData? leadingIcon,
     String text,
     String title,
     VoidCallback onEdit,
@@ -147,10 +211,12 @@ class ProfilePage extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Container(
-            alignment: Alignment.center,
-            child: Icon(leadingIcon, color: Colors.blueGrey),
-          ),
+          if (leadingIcon != null) ...[
+            Container(
+              alignment: Alignment.center,
+              child: Icon(leadingIcon, color: Colors.blueGrey),
+            ),
+          ],
           SizedBox(width: 10),
           Expanded(
             child: Column(
@@ -179,7 +245,7 @@ class ProfilePage extends StatelessWidget {
   }
 
   Widget buildProfileBio(BuildContext context) {
-    final profile = Profile();
+    final profile = context.watch<ProfileProvider>().profile;
     return Padding(
       padding: const EdgeInsets.only(left: 10.0, right: 10.0),
       child: Column(
@@ -220,7 +286,15 @@ class ProfilePage extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => EditProfileScreen(name: "Budi"),
+                        builder: (_) => ChangeNotifierProvider.value(
+                          value: context.read<ProfileProvider>(),
+                          child: EditProfileScreen(
+                            value: profile.bio,
+                            value2: '',
+                            profileField: ProfileField.bio,
+                            title: "Edit Biography",
+                          ),
+                        ),
                       ),
                     );
                   },
