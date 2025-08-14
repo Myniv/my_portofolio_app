@@ -115,7 +115,7 @@ class _ProfilePage extends StatelessWidget {
                 DeleteButton(
                   color: const Color.fromARGB(255, 250, 129, 121),
                   onTab: () {
-                    Navigator.of(context).pop(true); // use 'context' from here
+                    Navigator.of(context).pop(true); 
                     context.read<ProfileProvider>().deleteProfileField(
                       ProfileField.nameProfession,
                     );
@@ -156,7 +156,7 @@ class _ProfilePage extends StatelessWidget {
               );
             },
             () {
-              Navigator.of(context).pop(true); // use 'context' from here
+              Navigator.of(context).pop(true); 
               context.read<ProfileProvider>().deleteProfileField(
                 ProfileField.email,
               );
@@ -182,7 +182,7 @@ class _ProfilePage extends StatelessWidget {
               );
             },
             () {
-              Navigator.of(context).pop(true); // use 'context' from here
+              Navigator.of(context).pop(true); 
               context.read<ProfileProvider>().deleteProfileField(
                 ProfileField.phone,
               );
@@ -208,7 +208,7 @@ class _ProfilePage extends StatelessWidget {
               );
             },
             () {
-              Navigator.of(context).pop(true); // use 'context' from here
+              Navigator.of(context).pop(true);
               context.read<ProfileProvider>().deleteProfileField(
                 ProfileField.address,
               );
@@ -322,7 +322,7 @@ class _ProfilePage extends StatelessWidget {
                 ),
                 DeleteButton(
                   onTab: () {
-                    Navigator.of(context).pop(true); // use 'context' from here
+                    Navigator.of(context).pop(true); 
                     context.read<ProfileProvider>().deleteProfileField(
                       ProfileField.bio,
                     );
