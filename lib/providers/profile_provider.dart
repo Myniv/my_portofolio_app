@@ -33,7 +33,7 @@ class ProfileProvider extends ChangeNotifier {
     }
   }
 
-  void deleteProfileField(String value, String? value2, ProfileField field) {
+  void deleteProfileField(ProfileField field) {
     switch (field) {
       case ProfileField.nameProfession:
         _profile.name = '';
@@ -50,9 +50,12 @@ class ProfileProvider extends ChangeNotifier {
         break;
       case ProfileField.address:
         _profile.address = '';
+        notifyListeners();
+
         break;
       case ProfileField.bio:
         _profile.bio = '';
+        notifyListeners();
         break;
       default:
     }

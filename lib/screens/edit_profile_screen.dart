@@ -22,21 +22,49 @@ class EditProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final _controller = TextEditingController(text: value);
     final _controller2 = TextEditingController(text: value2);
+
     return Scaffold(
+      backgroundColor: Colors.grey[100],
       appBar: CustomAppbar(
-        title: title,
+        title: "Edit $title",
         icon: Icons.arrow_back,
         onIconPress: () {
           Navigator.pop(context);
         },
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Text(
+              "Update your $title",
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              "Please enter the new details below.",
+              style: TextStyle(color: Colors.grey[600]),
+            ),
+            const SizedBox(height: 24),
+
             TextField(
               controller: _controller,
-              decoration: InputDecoration(labelText: "${title}"),
+              decoration: InputDecoration(
+                labelText: value2 != null ? 'Name' : title,
+                hintText: value2 != null
+                    ? 'Enter your name'
+                    : 'Enter your $title',
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+              ),
               keyboardType: profileField == ProfileField.phone
                   ? TextInputType.number
                   : profileField == ProfileField.email
@@ -46,29 +74,65 @@ class EditProfileScreen extends StatelessWidget {
                   ? [FilteringTextInputFormatter.digitsOnly]
                   : [],
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
+
             if (value2 != null) ...[
               TextField(
                 controller: _controller2,
-                decoration: InputDecoration(labelText: title),
+                decoration: InputDecoration(
+                  labelText: 'Profession',
+                  hintText: 'Enter your profession',
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
             ],
 
-            ElevatedButton(
-              onPressed: () {
-                final newValue = _controller.text;
-                final newValue2 = value2 != null ? _controller2.text : null;
-                if (newValue.isNotEmpty) {
-                  context.read<ProfileProvider>().addEditProfileField(
-                    newValue,
-                    newValue2,
-                    profileField,
-                  );
-                  Navigator.pop(context);
-                }
-              },
-              child: Text('Save'),
+            const SizedBox(height: 10),
+
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                icon: const Icon(Icons.save, size: 20),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blueAccent,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  elevation: 3,
+                ),
+                onPressed: () {
+                  final newValue = _controller.text.trim();
+                  final newValue2 = value2 != null
+                      ? _controller2.text.trim()
+                      : null;
+
+                  if (newValue.isNotEmpty) {
+                    context.read<ProfileProvider>().addEditProfileField(
+                      newValue,
+                      newValue2,
+                      profileField,
+                    );
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('$title edited successfully'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                    Navigator.pop(context);
+                  }
+                },
+                label: const Text(
+                  'Save Changes',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                ),
+              ),
             ),
           ],
         ),
