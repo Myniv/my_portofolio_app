@@ -1,79 +1,13 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:my_portofolio_app/screens/add_project_screen.dart';
+import 'package:provider/provider.dart';
 import 'package:my_portofolio_app/models/project.dart';
 import 'package:my_portofolio_app/models/certification.dart';
+import 'package:my_portofolio_app/providers/project_provider.dart';
 
 class PortofolioScreen extends StatelessWidget {
-  final List<Project> projectItems = [
-    Project(
-      imagePath: "assets/images/logo/dotnet.png",
-      title: "Backend",
-      subtitle: "Asri Company",
-      description:
-          "Developed robust backend APIs and services for Asri Company's enterprise management system, handling complex business logic and data processing.",
-      technologies: [
-        ".NET Core",
-        "C#",
-        "SQL Server",
-        "Entity Framework",
-        "REST API",
-      ],
-    ),
-    Project(
-      imagePath: "assets/images/logo/dotnet.png",
-      title: "Backend",
-      subtitle: "LMS",
-      description:
-          "Built a comprehensive Learning Management System backend with user authentication, course management, and progress tracking capabilities.",
-      technologies: [".NET Core", "C#", "PostgreSQL", "JWT", "SignalR"],
-    ),
-    Project(
-      imagePath: "assets/images/logo/reactjs.png",
-      title: "Frontend",
-      subtitle: "Asri Company",
-      description:
-          "Created responsive and intuitive user interfaces for Asri Company's web application with modern design principles and optimal user experience.",
-      technologies: ["React.js", "JavaScript", "CSS3", "Material-UI", "Redux"],
-    ),
-    Project(
-      imagePath: "assets/images/logo/reactjs.png",
-      title: "Frontend",
-      subtitle: "LMS",
-      description:
-          "Developed an interactive learning platform frontend with real-time features, course navigation, and student progress visualization.",
-      technologies: [
-        "React.js",
-        "TypeScript",
-        "Tailwind CSS",
-        "Axios",
-        "Socket.io",
-      ],
-    ),
-    Project(
-      imagePath: "assets/images/logo/laravel.png",
-      title: "Fullstack",
-      subtitle: "Health Care",
-      description:
-          "Complete healthcare management system with patient records, appointment scheduling, and medical history tracking for healthcare providers.",
-      technologies: ["Laravel", "PHP", "MySQL", "Bootstrap", "jQuery"],
-    ),
-    Project(
-      imagePath: "assets/images/logo/laravel.png",
-      title: "Fullstack",
-      subtitle: "E-Commerce",
-      description:
-          "Full-featured e-commerce platform with product catalog, shopping cart, payment integration, and order management system.",
-      technologies: ["Laravel", "PHP", "MySQL", "Vue.js", "Stripe API"],
-    ),
-    Project(
-      imagePath: "assets/images/logo/laravel.png",
-      title: "Fullstack",
-      subtitle: "LMS",
-      description:
-          "End-to-end Learning Management System with course creation, student enrollment, quiz system, and performance analytics.",
-      technologies: ["Laravel", "PHP", "MySQL", "Blade", "Chart.js"],
-    ),
-  ];
-
   final List<Certification> certifications = [
     Certification(
       imagePath: "assets/images/logo/solecode.png",
@@ -129,16 +63,29 @@ class PortofolioScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final projectItems = context.watch<ProjectProvider>();
     return ListView(
       children: [
         ExpansionTile(
-          title: Text(
-            "Project",
-            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-          ),
-          subtitle: Text(
-            "This is the project",
-            style: TextStyle(color: Colors.grey),
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                "Projects",
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.add, color: Colors.blue),
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => AddProjectScreen()),
+                  );
+                },
+              ),
+            ],
           ),
           initiallyExpanded: true,
           children: [
@@ -153,13 +100,13 @@ class PortofolioScreen extends StatelessWidget {
                   mainAxisSpacing: 10,
                   childAspectRatio: 1,
                 ),
-                itemCount: projectItems.length,
+                itemCount: projectItems.projects.length,
                 itemBuilder: (context, index) {
-                  final proj = projectItems[index];
+                  final proj = projectItems.projects[index];
                   return _projectCard(
-                    proj.imagePath,
+                    proj.imagePath ?? "",
                     proj.title,
-                    proj.subtitle,
+                    proj.category ?? "",
                     proj.description ?? "",
                     proj.technologies ?? [],
                   );
@@ -169,13 +116,21 @@ class PortofolioScreen extends StatelessWidget {
           ],
         ),
         ExpansionTile(
-          title: Text(
-            "Sertification",
-            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-          ),
-          subtitle: Text(
-            "This is the sertification",
-            style: TextStyle(color: Colors.grey),
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                "Sertification",
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.add, color: Colors.blue),
+                onPressed: () {},
+              ),
+            ],
           ),
           initiallyExpanded: true,
           children: [
@@ -225,10 +180,13 @@ class PortofolioScreen extends StatelessWidget {
               width: double.infinity,
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage(imagePath),
+                  image: imagePath.startsWith('assets/')
+                      ? AssetImage(imagePath) as ImageProvider
+                      : FileImage(File(imagePath)),
                   fit: BoxFit.cover,
                 ),
               ),
+
               child: Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
