@@ -6,6 +6,9 @@ import 'package:my_portofolio_app/widgets/custom_appbar.dart';
 import 'package:provider/provider.dart';
 
 class AddProjectScreen extends StatelessWidget {
+  final int? projectIndex;
+  AddProjectScreen({this.projectIndex});
+
   final categories = [
     'Web Development',
     'Mobile Development',
@@ -16,6 +19,12 @@ class AddProjectScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final projectProvider = Provider.of<ProjectProvider>(context);
+
+    if (projectIndex != null && projectProvider.projectIndex != projectIndex) {
+      projectProvider.getEditProject(projectIndex!);
+    }
+
+    final isEdit = projectIndex != null;
 
     return Scaffold(
       backgroundColor: Colors.grey[100],
@@ -43,7 +52,7 @@ class AddProjectScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Add New Project",
+                    isEdit ? "Edit Project" : "Add New Project",
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: Colors.black87,
@@ -81,6 +90,7 @@ class AddProjectScreen extends StatelessWidget {
                   SizedBox(height: 20),
 
                   DropdownButtonFormField(
+                    value: projectProvider.projectData.category,
                     decoration: InputDecoration(
                       labelText: "Category",
                       filled: true,
@@ -360,7 +370,11 @@ class AddProjectScreen extends StatelessWidget {
                                   ),
                                   ElevatedButton(
                                     onPressed: () {
-                                      projectProvider.resetProject();
+                                      isEdit
+                                          ? projectProvider.getEditProject(
+                                              projectIndex!,
+                                            )
+                                          : projectProvider.resetProject();
                                       Navigator.of(ctx).pop();
                                     },
                                     child: Text('Reset'),
@@ -405,7 +419,9 @@ class AddProjectScreen extends StatelessWidget {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         content: Text(
-                                          'Project added successfully!',
+                                          isEdit
+                                              ? 'Project updated successfully!'
+                                              : 'Project added successfully!',
                                         ),
                                         backgroundColor: Colors.green,
                                       ),
@@ -422,7 +438,7 @@ class AddProjectScreen extends StatelessWidget {
                                 ),
                               )
                             : Text(
-                                'Submit',
+                                isEdit ? 'Update' : 'Submit',
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,

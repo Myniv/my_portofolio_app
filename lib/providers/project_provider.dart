@@ -43,7 +43,6 @@ class ProjectProvider with ChangeNotifier {
       if (projectData.technologies == null) {
         projectData.technologies = [];
       }
-
       projectData.technologies!.add(tech);
       technologyController.clear();
       notifyListeners();
@@ -166,14 +165,5 @@ class ProjectProvider with ChangeNotifier {
   void deleteProject(int index) {
     _projects.removeAt(index);
     notifyListeners();
-  }
-
-  @override
-  void dispose() {
-    titleController.dispose();
-    descriptionController.dispose();
-    linkController.dispose();
-    technologyController.dispose();
-    super.dispose();
   }
 }

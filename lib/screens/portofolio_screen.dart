@@ -109,6 +109,8 @@ class PortofolioScreen extends StatelessWidget {
                     proj.category ?? "",
                     proj.description ?? "",
                     proj.technologies ?? [],
+                    context,
+                    index,
                   );
                 },
               ),
@@ -165,6 +167,8 @@ class PortofolioScreen extends StatelessWidget {
     String subtitle,
     String description,
     List<String> technologies,
+    BuildContext context,
+    int index,
   ) {
     return InkWell(
       onTap: () {},
@@ -172,129 +176,150 @@ class PortofolioScreen extends StatelessWidget {
         elevation: 4,
         clipBehavior: Clip.antiAlias,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Stack(
           children: [
-            Container(
-              height: 100,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: imagePath.startsWith('assets/')
-                      ? AssetImage(imagePath) as ImageProvider
-                      : FileImage(File(imagePath)),
-                  fit: BoxFit.cover,
-                ),
-              ),
-
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [Colors.transparent, Colors.black.withOpacity(0.7)],
+            // Main content
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  height: 100,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: imagePath.startsWith('assets/')
+                          ? AssetImage(imagePath) as ImageProvider
+                          : FileImage(File(imagePath)),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.transparent,
+                          Colors.black.withOpacity(0.7),
+                        ],
+                      ),
+                    ),
+                    child: Align(
+                      alignment: Alignment.bottomLeft,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              title,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              subtitle,
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: Colors.white70,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-                child: Align(
-                  alignment: Alignment.bottomLeft,
+                Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.all(12.0),
                     child: Column(
-                      mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          title,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
+                        Expanded(
+                          child: Text(
+                            description,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey[700],
+                              height: 1.3,
+                            ),
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        Text(
-                          subtitle,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Colors.white70,
+                        const SizedBox(height: 8),
+                        if (technologies.isNotEmpty) ...[
+                          Text(
+                            "Technologies:",
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey[800],
+                            ),
                           ),
-                        ),
+                          const SizedBox(height: 4),
+                          Wrap(
+                            spacing: 4,
+                            runSpacing: 2,
+                            children: technologies.take(3).map((tech) {
+                              return Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                  vertical: 2,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.blue[100],
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  tech,
+                                  style: TextStyle(
+                                    fontSize: 9,
+                                    color: Colors.blue[800],
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                          if (technologies.length > 3)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 2),
+                              child: Text(
+                                "+${technologies.length - 3} more",
+                                style: TextStyle(
+                                  fontSize: 9,
+                                  color: Colors.grey[600],
+                                  fontStyle: FontStyle.italic,
+                                ),
+                              ),
+                            ),
+                        ],
                       ],
                     ),
                   ),
                 ),
-              ),
+              ],
             ),
 
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        description,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[700],
-                          height: 1.3,
-                        ),
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
-                      ),
+            // Floating edit button (top-right)
+            Positioned(
+              top: 8,
+              right: 8,
+              child: IconButton(
+                icon: const Icon(Icons.edit, color: Colors.white),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => AddProjectScreen(projectIndex: index),
                     ),
-
-                    const SizedBox(height: 8),
-
-                    if (technologies.isNotEmpty) ...[
-                      Text(
-                        "Technologies:",
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.grey[800],
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Wrap(
-                        spacing: 4,
-                        runSpacing: 2,
-                        children: technologies.take(3).map((tech) {
-                          return Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 6,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.blue[100],
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              tech,
-                              style: TextStyle(
-                                fontSize: 9,
-                                color: Colors.blue[800],
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                      if (technologies.length > 3)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 2),
-                          child: Text(
-                            "+${technologies.length - 3} more",
-                            style: TextStyle(
-                              fontSize: 9,
-                              color: Colors.grey[600],
-                              fontStyle: FontStyle.italic,
-                            ),
-                          ),
-                        ),
-                    ],
-                  ],
-                ),
+                  );
+                },
               ),
             ),
           ],
