@@ -1,15 +1,19 @@
 class Project {
-  final String imagePath;
-  final String title;
-  final String subtitle;
-  final String? description;
-  final List<String>? technologies;
+  String title;
+  String? category;
+  DateTime? completionDate;
+  String description;
+  String? imagePath;
+  String? link;
+  List<String>? technologies;
 
   Project({
-    required this.imagePath,
-    required this.title,
-    required this.subtitle,
-    this.description,
+    this.title = '',
+    this.category,
+    this.completionDate,
+    this.description = '',
+    this.imagePath,
+    this.link,
     this.technologies,
   });
 }

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:my_portofolio_app/providers/profile_provider.dart';
+import 'package:my_portofolio_app/providers/project_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:my_portofolio_app/screens/portofolio_screen.dart';
 import 'package:my_portofolio_app/screens/home_screen.dart';
 import 'package:my_portofolio_app/widgets/bottom_navbar.dart';
@@ -7,7 +10,15 @@ import 'package:my_portofolio_app/screens/profile_screen.dart';
 import 'package:my_portofolio_app/widgets/custom_drawer.dart';
 
 void main() {
-  runApp(const MainApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ProfileProvider()),
+        ChangeNotifierProvider(create: (_) => ProjectProvider()),
+      ],
+      child: MainApp(),
+    ),
+  );
 }
 
 class MainApp extends StatelessWidget {
@@ -52,9 +63,7 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppbar(
-        title: _titleScreen[_currentIndex],
-      ),
+      appBar: CustomAppbar(title: _titleScreen[_currentIndex]),
       body: _screens[_currentIndex],
       bottomNavigationBar: CustomBottomNavbar(
         currentIndex: _currentIndex,
