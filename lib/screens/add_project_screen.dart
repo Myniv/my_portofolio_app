@@ -6,8 +6,9 @@ import 'package:my_portofolio_app/widgets/custom_appbar.dart';
 import 'package:provider/provider.dart';
 
 class AddProjectScreen extends StatelessWidget {
-  final int? projectIndex;
-  AddProjectScreen({this.projectIndex});
+  // final int? projectIndex;
+
+  // AddProjectScreen({this.projectIndex});
 
   final categories = [
     'Web Development',
@@ -18,6 +19,14 @@ class AddProjectScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final args =
+        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
+
+    final projectIndex = args?['index'] as int?;
+    final selectedCategory = args?['category'] as String?;
+
+    print("ProjectIndex? $projectIndex");
+
     final projectProvider = Provider.of<ProjectProvider>(context);
 
     if (projectIndex != null && projectProvider.projectIndex != projectIndex) {
