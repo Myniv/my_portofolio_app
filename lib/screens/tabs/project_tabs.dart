@@ -17,6 +17,8 @@ class ProjectTabs extends StatelessWidget {
         .where((project) => project.category == filter)
         .toList();
 
+    print("Filtered Projects: $projectItems");
+
     return Scaffold(
       body: projectItems.isEmpty
           ? const Center(child: Text("No projects yet"))
@@ -54,7 +56,11 @@ class ProjectTabs extends StatelessWidget {
 
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.pushNamed(context, '/addProject');
+          Navigator.pushNamed(
+            context,
+            '/addProject',
+            arguments: {'index': null, 'category': filter},
+          );
         },
         child: const Icon(Icons.add, color: Colors.blue),
       ),
@@ -222,7 +228,7 @@ class ProjectTabs extends StatelessWidget {
                   Navigator.pushNamed(
                     context,
                     '/addProject',
-                    arguments: {'index': index, 'category': filter},
+                    arguments: {'index': index, 'category': null},
                   );
                 },
               ),

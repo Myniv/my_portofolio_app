@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 
 class CustomDrawer extends StatelessWidget {
-  final Function(int) _changeTab;
-  final List<String> title;
-  final List<IconData> icon;
-  const CustomDrawer({
-    super.key,
-    required dynamic Function(int) onSelect,
-    required this.title,
-    required this.icon,
-  }) : _changeTab = onSelect;
+  // final Function(int) _changeTab;
+  // final List<String> title;
+  // final List<IconData> icon;
+  // const CustomDrawer({
+  //   super.key,
+  //   required dynamic Function(int) onSelect,
+  //   required this.title,
+  //   required this.icon,
+  // }) : _changeTab = onSelect;
 
   @override
   Widget build(BuildContext context) {
@@ -38,15 +38,29 @@ class CustomDrawer extends StatelessWidget {
               ),
             ),
           ),
-          for (int i = 0; i < title.length; i++)
-            ListTile(
-              leading: Icon(icon[i]),
-              title: Text(title[i]),
-              onTap: () {
-                _changeTab(i);
-                Navigator.pop(context);
-              },
-            ),
+          // for (int i = 0; i < title.length; i++)
+          //   ListTile(
+          //     leading: Icon(icon[i]),
+          //     title: Text(title[i]),
+          //     onTap: () {
+          //       _changeTab(i);
+          //       Navigator.pop(context);
+          //     },
+          //   ),
+          ListTile(
+            leading: Icon(Icons.info),
+            title: Text('About'),
+            onTap: () {
+              Navigator.pushNamed(context, '/about');
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.settings),
+            title: Text('Settings'),
+            onTap: () {
+              Navigator.pushNamed(context, '/setting');
+            },
+          ),
         ],
       ),
     );

@@ -5,10 +5,37 @@ import 'package:my_portofolio_app/providers/project_provider.dart';
 import 'package:my_portofolio_app/widgets/custom_appbar.dart';
 import 'package:provider/provider.dart';
 
-class AddProjectScreen extends StatelessWidget {
-  // final int? projectIndex;
+class AddProjectScreen extends StatefulWidget {
+  const AddProjectScreen({super.key});
 
-  // AddProjectScreen({this.projectIndex});
+  @override
+  State<AddProjectScreen> createState() => _AddProjectScreenState();
+}
+
+class _AddProjectScreenState extends State<AddProjectScreen> {
+  bool _initialized = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    if (!_initialized) {
+      final args =
+          ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+      final projectIndex = args?['index'] as int?;
+      final selectedCategory = args?['category'] as String?;
+
+      final projectProvider = context.read<ProjectProvider>();
+
+      if (projectIndex != null) {
+        projectProvider.getEditProject(projectIndex);
+      } else {
+        projectProvider.resetProject(); // Reset when adding a new project
+      }
+
+      _initialized = true;
+    }
+  }
 
   final categories = [
     'Web Development',
@@ -24,7 +51,7 @@ class AddProjectScreen extends StatelessWidget {
 
     final projectIndex = args?['index'] as int?;
     final selectedCategory = args?['category'] as String?;
-
+    print("SelectedCategory? $selectedCategory");
     print("ProjectIndex? $projectIndex");
 
     final projectProvider = Provider.of<ProjectProvider>(context);

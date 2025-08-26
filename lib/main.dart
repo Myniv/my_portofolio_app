@@ -50,8 +50,6 @@ class _MainScreenState extends State<MainScreen> {
     setState(() => _currentIndex = index);
   }
 
-  
-
   final List<String> _titleScreen = ["Profile", "Portofolio"];
   final List<IconData> _iconScreen = [Icons.person, Icons.work];
   final List<Widget> _screens = [ProfilePage(), PortofolioScreen()];
@@ -68,9 +66,9 @@ class _MainScreenState extends State<MainScreen> {
         icon: _iconScreen,
       ),
       drawer: CustomDrawer(
-        onSelect: _changeTab,
-        title: _titleScreen,
-        icon: _iconScreen,
+        // onSelect: _changeTab,
+        // title: _titleScreen,
+        // icon: _iconScreen,
       ),
     );
   }
