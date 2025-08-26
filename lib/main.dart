@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:my_portofolio_app/providers/profile_provider.dart';
 import 'package:my_portofolio_app/providers/project_provider.dart';
+import 'package:my_portofolio_app/routes.dart';
 import 'package:provider/provider.dart';
 import 'package:my_portofolio_app/screens/portofolio_screen.dart';
 import 'package:my_portofolio_app/screens/home_screen.dart';
@@ -28,12 +29,9 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: "Sample Portfolio App",
-      // home: Scaffold(
-      //   appBar: CustomAppbar(),
-      //   body: ProfilePage(),
-      //   bottomNavigationBar: CustomBottomNavbar(),
-      // ),
+      debugShowCheckedModeBanner: false,
       home: MainScreen(),
+      onGenerateRoute: AppRoutes.generateRoute,
     );
   }
 }
@@ -52,13 +50,11 @@ class _MainScreenState extends State<MainScreen> {
     setState(() => _currentIndex = index);
   }
 
-  final List<String> _titleScreen = ["Home", "Profile", "Portofolio"];
-  final List<IconData> _iconScreen = [Icons.home, Icons.person, Icons.work];
-  final List<Widget> _screens = [
-    HomeScreen(),
-    ProfilePage(),
-    PortofolioScreen(),
-  ];
+  
+
+  final List<String> _titleScreen = ["Profile", "Portofolio"];
+  final List<IconData> _iconScreen = [Icons.person, Icons.work];
+  final List<Widget> _screens = [ProfilePage(), PortofolioScreen()];
 
   @override
   Widget build(BuildContext context) {
