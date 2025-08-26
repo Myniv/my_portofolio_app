@@ -21,7 +21,7 @@ class ProjectTabs extends StatelessWidget {
 
     return Scaffold(
       body: projectItems.isEmpty
-          ? const Center(child: Text("No projects yet"))
+          ? Center(child: Text("No projects in ${filter} yet"))
           : ListView(
               children: [
                 Padding(
