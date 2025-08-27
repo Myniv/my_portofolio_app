@@ -6,6 +6,7 @@ class Profile {
   String address;
   String bio;
   DateTime birthday;
+  String? profilePicturePath;
 
   Profile({
     this.name = 'Mulyana',
@@ -15,7 +16,8 @@ class Profile {
     this.address = 'Binong Permai',
     this.bio = 'waegsehdrfjtgkyhuj',
     DateTime? birthday,
+    this.profilePicturePath,
   }) : birthday = birthday ?? DateTime.now();
 }
 
-final profile = Profile(); 
+final profile = Profile();

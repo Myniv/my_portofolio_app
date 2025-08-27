@@ -1,23 +1,13 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:my_portofolio_app/providers/profile_provider.dart';
 import 'package:my_portofolio_app/widgets/delete_button.dart';
 import 'package:my_portofolio_app/widgets/edit_button.dart';
 import 'package:provider/provider.dart';
-import 'package:my_portofolio_app/models/profile.dart';
-import 'package:my_portofolio_app/screens/edit_profile_screen.dart';
 
 class ProfilePage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => ProfileProvider(),
-      child: _ProfilePage(),
-    );
-  }
-}
-
-class _ProfilePage extends StatelessWidget {
-  const _ProfilePage({super.key});
+  // const _ProfilePage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +58,9 @@ class _ProfilePage extends StatelessWidget {
                 children: [
                   CircleAvatar(
                     radius: 50,
-                    backgroundImage: AssetImage('assets/images/profile.png'),
+                    backgroundImage: profile.profilePicturePath != null
+                        ? FileImage(File(profile.profilePicturePath!))
+                        : const AssetImage('assets/images/profile.png'),
                   ),
                   SizedBox(height: 10),
                   Text(
@@ -96,26 +88,22 @@ class _ProfilePage extends StatelessWidget {
                 EditButton(
                   color: Colors.white,
                   onTab: () {
-                    Navigator.push(
+                    Navigator.pushNamed(
                       context,
-                      MaterialPageRoute(
-                        builder: (_) => ChangeNotifierProvider.value(
-                          value: context.read<ProfileProvider>(),
-                          child: EditProfileScreen(
-                            value: profile.name,
-                            value2: profile.profession,
-                            profileField: ProfileField.nameProfession,
-                            title: "Name and Profession",
-                          ),
-                        ),
-                      ),
+                      '/editProfile',
+                      arguments: {
+                        'title': "Name and Profession",
+                        'value': profile.name,
+                        'value2': profile.profession,
+                        'profileField': ProfileField.nameProfession,
+                      },
                     );
                   },
                 ),
                 DeleteButton(
                   color: const Color.fromARGB(255, 250, 129, 121),
                   onTab: () {
-                    Navigator.of(context).pop(true); 
+                    Navigator.of(context).pop(true);
                     context.read<ProfileProvider>().deleteProfileField(
                       ProfileField.nameProfession,
                     );
@@ -141,22 +129,18 @@ class _ProfilePage extends StatelessWidget {
             profile.email,
             "Email",
             () {
-              Navigator.push(
+              Navigator.pushNamed(
                 context,
-                MaterialPageRoute(
-                  builder: (_) => ChangeNotifierProvider.value(
-                    value: context.read<ProfileProvider>(),
-                    child: EditProfileScreen(
-                      value: profile.email,
-                      profileField: ProfileField.email,
-                      title: "Email",
-                    ),
-                  ),
-                ),
+                '/editProfile',
+                arguments: {
+                  'title': "Email",
+                  'value': profile.email,
+                  'profileField': ProfileField.email,
+                },
               );
             },
             () {
-              Navigator.of(context).pop(true); 
+              Navigator.of(context).pop(true);
               context.read<ProfileProvider>().deleteProfileField(
                 ProfileField.email,
               );
@@ -167,22 +151,18 @@ class _ProfilePage extends StatelessWidget {
             profile.phone.toString(),
             "Phone Number",
             () {
-              Navigator.push(
+              Navigator.pushNamed(
                 context,
-                MaterialPageRoute(
-                  builder: (_) => ChangeNotifierProvider.value(
-                    value: context.read<ProfileProvider>(),
-                    child: EditProfileScreen(
-                      value: profile.phone.toString(),
-                      profileField: ProfileField.phone,
-                      title: "Phone Number",
-                    ),
-                  ),
-                ),
+                '/editProfile',
+                arguments: {
+                  'title': "Phone Number",
+                  'value': profile.phone.toString(),
+                  'profileField': ProfileField.phone,
+                },
               );
             },
             () {
-              Navigator.of(context).pop(true); 
+              Navigator.of(context).pop(true);
               context.read<ProfileProvider>().deleteProfileField(
                 ProfileField.phone,
               );
@@ -193,18 +173,14 @@ class _ProfilePage extends StatelessWidget {
             profile.address,
             "Address",
             () {
-              Navigator.push(
+              Navigator.pushNamed(
                 context,
-                MaterialPageRoute(
-                  builder: (_) => ChangeNotifierProvider.value(
-                    value: context.read<ProfileProvider>(),
-                    child: EditProfileScreen(
-                      value: profile.address,
-                      profileField: ProfileField.address,
-                      title: "Address",
-                    ),
-                  ),
-                ),
+                '/editProfile',
+                arguments: {
+                  'title': "Address",
+                  'value': profile.address,
+                  'profileField': ProfileField.address,
+                },
               );
             },
             () {
@@ -305,24 +281,20 @@ class _ProfilePage extends StatelessWidget {
                 ),
                 EditButton(
                   onTab: () {
-                    Navigator.push(
+                    Navigator.pushNamed(
                       context,
-                      MaterialPageRoute(
-                        builder: (_) => ChangeNotifierProvider.value(
-                          value: context.read<ProfileProvider>(),
-                          child: EditProfileScreen(
-                            value: profile.bio,
-                            profileField: ProfileField.bio,
-                            title: "Biography",
-                          ),
-                        ),
-                      ),
+                      '/editProfile',
+                      arguments: {
+                        'title': "Biography",
+                        'value': profile.bio,
+                        'profileField': ProfileField.bio,
+                      },
                     );
                   },
                 ),
                 DeleteButton(
                   onTab: () {
-                    Navigator.of(context).pop(true); 
+                    Navigator.of(context).pop(true);
                     context.read<ProfileProvider>().deleteProfileField(
                       ProfileField.bio,
                     );

@@ -24,7 +24,11 @@ class AppRoutes {
           builder: (_) => ProfilePage(),
           settings: settings,
         );
-      // case editProfile: return MaterialPageRoute(builder: (_)=> EditProfileScreen(value: value, title: title, profileField: profileField))
+      case editProfile:
+        return MaterialPageRoute(
+          builder: (_) => EditProfileScreen(),
+          settings: settings,
+        );
       case portofolio:
         return MaterialPageRoute(
           builder: (_) => PortofolioScreen(),
