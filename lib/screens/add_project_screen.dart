@@ -30,7 +30,8 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
       if (projectIndex != null) {
         projectProvider.getEditProject(projectIndex);
       } else {
-        projectProvider.resetProject(); // Reset when adding a new project
+        projectProvider.resetProject();
+        projectProvider.setCategory(selectedCategory);
       }
 
       _initialized = true;
