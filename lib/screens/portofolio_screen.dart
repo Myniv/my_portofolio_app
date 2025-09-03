@@ -8,7 +8,26 @@ import 'package:my_portofolio_app/models/project.dart';
 import 'package:my_portofolio_app/models/certification.dart';
 import 'package:my_portofolio_app/providers/project_provider.dart';
 
-class PortofolioScreen extends StatelessWidget {
+class PortofolioScreen extends StatefulWidget {
+  @override
+  _PortofolioScreenState createState() => _PortofolioScreenState();
+}
+
+class _PortofolioScreenState extends State<PortofolioScreen> {
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   // fetch data when screen opens
+  //   Future.microtask(() => context.read<ProjectProvider>().fetchProjects());
+  // }
+  
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+    Future.microtask(() => context.read<ProjectProvider>().fetchProjects());
+  }
+
   final List<Certification> certifications = [
     Certification(
       imagePath: "assets/images/logo/solecode.png",

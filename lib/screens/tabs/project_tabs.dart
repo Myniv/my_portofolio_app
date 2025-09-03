@@ -11,9 +11,9 @@ class ProjectTabs extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final items = context.watch<ProjectProvider>();
+    final projectProvider = context.watch<ProjectProvider>();
 
-    final projectItems = items.projects
+    final projectItems = projectProvider.projects
         .where((project) => project.category == filter)
         .toList();
 
@@ -22,6 +22,10 @@ class ProjectTabs extends StatelessWidget {
     return Scaffold(
       body: projectItems.isEmpty
           ? Center(child: Text("No projects in ${filter} yet"))
+          : projectProvider.isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : projectProvider.errorMessage != null
+          ? Center(child: Text(projectProvider.errorMessage!))
           : ListView(
               children: [
                 Padding(
@@ -40,13 +44,13 @@ class ProjectTabs extends StatelessWidget {
                     itemBuilder: (context, index) {
                       final proj = projectItems[index];
                       return _projectCard(
-                        proj.imagePath ?? "",
+                        proj.image_path ?? "",
                         proj.title,
                         proj.category ?? "",
                         proj.description ?? "",
-                        proj.technologies ?? [],
+                        // proj.technologies ?? [],
                         context,
-                        index,
+                        proj.id!,
                       );
                     },
                   ),
@@ -72,7 +76,7 @@ class ProjectTabs extends StatelessWidget {
     String title,
     String subtitle,
     String description,
-    List<String> technologies,
+    // List<String> technologies,
     BuildContext context,
     int index,
   ) {
@@ -158,53 +162,53 @@ class ProjectTabs extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 8),
-                        if (technologies.isNotEmpty) ...[
-                          Text(
-                            "Technologies:",
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.grey[800],
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Wrap(
-                            spacing: 4,
-                            runSpacing: 2,
-                            children: technologies.take(3).map((tech) {
-                              return Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 6,
-                                  vertical: 2,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.blue[100],
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Text(
-                                  tech,
-                                  style: TextStyle(
-                                    fontSize: 9,
-                                    color: Colors.blue[800],
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              );
-                            }).toList(),
-                          ),
-                          if (technologies.length > 3)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 2),
-                              child: Text(
-                                "+${technologies.length - 3} more",
-                                style: TextStyle(
-                                  fontSize: 9,
-                                  color: Colors.grey[600],
-                                  fontStyle: FontStyle.italic,
-                                ),
-                              ),
-                            ),
-                        ],
+                        // if (technologies.isNotEmpty) ...[
+                        //   Text(
+                        //     "Technologies:",
+                        //     style: TextStyle(
+                        //       fontSize: 11,
+                        //       fontWeight: FontWeight.bold,
+                        //       color: Colors.grey[800],
+                        //     ),
+                        //   ),
+                        //   const SizedBox(height: 4),
+                        //   Wrap(
+                        //     spacing: 4,
+                        //     runSpacing: 2,
+                        //     children: technologies.take(3).map((tech) {
+                        //       return Container(
+                        //         padding: const EdgeInsets.symmetric(
+                        //           horizontal: 6,
+                        //           vertical: 2,
+                        //         ),
+                        //         decoration: BoxDecoration(
+                        //           color: Colors.blue[100],
+                        //           borderRadius: BorderRadius.circular(8),
+                        //         ),
+                        //         child: Text(
+                        //           tech,
+                        //           style: TextStyle(
+                        //             fontSize: 9,
+                        //             color: Colors.blue[800],
+                        //             fontWeight: FontWeight.w500,
+                        //           ),
+                        //         ),
+                        //       );
+                        //     }).toList(),
+                        //   ),
+                        //   if (technologies.length > 3)
+                        //     Padding(
+                        //       padding: const EdgeInsets.only(top: 2),
+                        //       child: Text(
+                        //         "+${technologies.length - 3} more",
+                        //         style: TextStyle(
+                        //           fontSize: 9,
+                        //           color: Colors.grey[600],
+                        //           fontStyle: FontStyle.italic,
+                        //         ),
+                        //       ),
+                        //     ),
+                        // ],
                       ],
                     ),
                   ),
@@ -212,25 +216,73 @@ class ProjectTabs extends StatelessWidget {
               ],
             ),
 
-            // Floating edit button (top-right)
             Positioned(
               top: 8,
               right: 8,
-              child: IconButton(
-                icon: const Icon(Icons.edit, color: Colors.white),
-                onPressed: () {
-                  // Navigator.push(
-                  //   context,
-                  //   MaterialPageRoute(
-                  //     builder: (_) => AddProjectScreen(projectIndex: index),
-                  //   ),
-                  // );
-                  Navigator.pushNamed(
-                    context,
-                    '/addProject',
-                    arguments: {'index': index, 'category': null},
-                  );
-                },
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.red.withOpacity(0.8),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: IconButton(
+                      icon: const Icon(
+                        Icons.delete,
+                        color: Colors.white,
+                        // size: 20,
+                      ),
+                      onPressed: () async {
+                        return await showDialog(
+                          context: context,
+                          builder: (ctx) => AlertDialog(
+                            title: Text("Delete Project"),
+                            content: Text(
+                              "Are you sure you want to delete this project?",
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.of(ctx).pop(false),
+                                child: Text("Cancel"),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(ctx).pop(true);
+                                  context.read<ProjectProvider>().deleteProject(
+                                    index,
+                                  );
+                                },
+                                child: Text("Delete"),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.blue.withOpacity(0.8),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: IconButton(
+                      icon: const Icon(
+                        Icons.edit,
+                        color: Colors.white,
+                        // size: 20,
+                      ),
+                      onPressed: () {
+                        Navigator.pushNamed(
+                          context,
+                          '/addProject',
+                          arguments: {'index': index, 'category': null},
+                        );
+                      },
+                    ),
+                  ),
+                ],
               ),
             ),
           ],

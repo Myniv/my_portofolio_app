@@ -16,6 +16,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
   bool _initialized = false;
 
   @override
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
 
@@ -31,7 +32,9 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
         projectProvider.getEditProject(projectIndex);
       } else {
         projectProvider.resetProject();
-        projectProvider.setCategory(selectedCategory);
+        if (selectedCategory != null) {
+          projectProvider.setCategory(selectedCategory);
+        }
       }
 
       _initialized = true;
@@ -56,10 +59,6 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
     print("ProjectIndex? $projectIndex");
 
     final projectProvider = Provider.of<ProjectProvider>(context);
-
-    if (projectIndex != null && projectProvider.projectIndex != projectIndex) {
-      projectProvider.getEditProject(projectIndex!);
-    }
 
     final isEdit = projectIndex != null;
 
@@ -114,7 +113,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                       ),
                     ),
                     validator: (value) {
-                      if (value!.isEmpty || value! == null) {
+                      if (value!.isEmpty) {
                         return 'Please enter a project title';
                       }
 
@@ -161,10 +160,10 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text("Select Completion Date"),
-                          if (projectProvider.projectData.completionDate !=
+                          if (projectProvider.projectData.completion_date !=
                               null)
                             Text(
-                              'Selected Date: ${DateFormat('yyyy-MM-dd').format(projectProvider.projectData.completionDate!)}',
+                              'Selected Date: ${DateFormat('yyyy-MM-dd').format(projectProvider.projectData.completion_date!)}',
                             ),
                         ],
                       ),
@@ -207,7 +206,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                     ),
                     maxLines: 3,
                     validator: (value) {
-                      if (value!.isEmpty || value! == null) {
+                      if (value!.isEmpty) {
                         return 'Please enter a project description';
                       }
 
@@ -219,97 +218,97 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                   ),
                   SizedBox(height: 20),
 
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: TextFormField(
-                              controller: projectProvider.technologyController,
-                              decoration: InputDecoration(
-                                labelText: 'Add Technology',
-                                hintText: 'Flutter, Laravel, etc',
-                                filled: true,
-                                fillColor: Colors.white,
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide.none,
-                                ),
-                              ),
-                              onFieldSubmitted: (value) {
-                                if (value.isNotEmpty) {
-                                  projectProvider.addTechnology(value);
-                                }
-                              },
-                            ),
-                          ),
-                          SizedBox(width: 10),
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.blueAccent,
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 16,
-                                horizontal: 20,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            onPressed: () {
-                              if (projectProvider
-                                  .technologyController
-                                  .text
-                                  .isNotEmpty) {
-                                projectProvider.addTechnology(
-                                  projectProvider.technologyController.text,
-                                );
-                              }
-                            },
-                            child: Text(
-                              'Add',
-                              style: TextStyle(
-                                // fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 10),
-                      if (projectProvider.projectData.technologies != null &&
-                          projectProvider
-                              .projectData
-                              .technologies!
-                              .isNotEmpty) ...[
-                        Text(
-                          'Technologies:',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                        SizedBox(height: 8),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: projectProvider.projectData.technologies!
-                              .map((tech) {
-                                return Chip(
-                                  label: Text(tech),
-                                  backgroundColor: Colors.blue[100],
-                                  deleteIcon: Icon(Icons.close, size: 18),
-                                  onDeleted: () {
-                                    projectProvider.removeTechnology(tech);
-                                  },
-                                );
-                              })
-                              .toList(),
-                        ),
-                      ],
-                    ],
-                  ),
+                  // Column(
+                  //   crossAxisAlignment: CrossAxisAlignment.start,
+                  //   children: [
+                  //     Row(
+                  //       children: [
+                  //         Expanded(
+                  //           child: TextFormField(
+                  //             controller: projectProvider.technologyController,
+                  //             decoration: InputDecoration(
+                  //               labelText: 'Add Technology',
+                  //               hintText: 'Flutter, Laravel, etc',
+                  //               filled: true,
+                  //               fillColor: Colors.white,
+                  //               border: OutlineInputBorder(
+                  //                 borderRadius: BorderRadius.circular(12),
+                  //                 borderSide: BorderSide.none,
+                  //               ),
+                  //             ),
+                  //             onFieldSubmitted: (value) {
+                  //               if (value.isNotEmpty) {
+                  //                 projectProvider.addTechnology(value);
+                  //               }
+                  //             },
+                  //           ),
+                  //         ),
+                  //         SizedBox(width: 10),
+                  //         ElevatedButton(
+                  //           style: ElevatedButton.styleFrom(
+                  //             backgroundColor: Colors.blueAccent,
+                  //             padding: const EdgeInsets.symmetric(
+                  //               vertical: 16,
+                  //               horizontal: 20,
+                  //             ),
+                  //             shape: RoundedRectangleBorder(
+                  //               borderRadius: BorderRadius.circular(12),
+                  //             ),
+                  //           ),
+                  //           onPressed: () {
+                  //             if (projectProvider
+                  //                 .technologyController
+                  //                 .text
+                  //                 .isNotEmpty) {
+                  //               projectProvider.addTechnology(
+                  //                 projectProvider.technologyController.text,
+                  //               );
+                  //             }
+                  //           },
+                  //           child: Text(
+                  //             'Add',
+                  //             style: TextStyle(
+                  //               // fontSize: 16,
+                  //               fontWeight: FontWeight.w600,
+                  //               color: Colors.white,
+                  //             ),
+                  //           ),
+                  //         ),
+                  //       ],
+                  //     ),
+                  //     SizedBox(height: 10),
+                  //     if (projectProvider.projectData.technologies != null &&
+                  //         projectProvider
+                  //             .projectData
+                  //             .technologies!
+                  //             .isNotEmpty) ...[
+                  //       Text(
+                  //         'Technologies:',
+                  //         style: TextStyle(
+                  //           fontWeight: FontWeight.bold,
+                  //           fontSize: 16,
+                  //         ),
+                  //       ),
+                  //       SizedBox(height: 8),
+                  //       Wrap(
+                  //         spacing: 8,
+                  //         runSpacing: 8,
+                  //         children: projectProvider.projectData.technologies!
+                  //             .map((tech) {
+                  //               return Chip(
+                  //                 label: Text(tech),
+                  //                 backgroundColor: Colors.blue[100],
+                  //                 deleteIcon: Icon(Icons.close, size: 18),
+                  //                 onDeleted: () {
+                  //                   projectProvider.removeTechnology(tech);
+                  //                 },
+                  //               );
+                  //             })
+                  //             .toList(),
+                  //       ),
+                  //     ],
+                  //   ],
+                  // ),
                   SizedBox(height: 20),
 
                   Row(
@@ -338,7 +337,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                       ),
                     ],
                   ),
-                  if (projectProvider.projectData.imagePath != null)
+                  if (projectProvider.projectData.image_path != null)
                     Container(
                       margin: EdgeInsets.only(top: 10),
                       height: 200,
@@ -350,7 +349,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(8),
                         child: Image.file(
-                          File(projectProvider.projectData.imagePath!),
+                          File(projectProvider.projectData.image_path!),
                           fit: BoxFit.cover,
                         ),
                       ),
@@ -409,7 +408,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                                     onPressed: () {
                                       isEdit
                                           ? projectProvider.getEditProject(
-                                              projectIndex!,
+                                              projectIndex,
                                             )
                                           : projectProvider.resetProject();
                                       Navigator.of(ctx).pop();
@@ -447,11 +446,9 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                             ? null
                             : () {
                                 if (projectProvider.validateProject()) {
-                                  projectProvider.setLoading(true);
                                   projectProvider.saveProject();
 
                                   Future.delayed(Duration(seconds: 2), () {
-                                    projectProvider.setLoading(false);
                                     Navigator.pop(context);
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
