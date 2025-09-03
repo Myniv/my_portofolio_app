@@ -1,7 +1,8 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:my_portofolio_app/models/project.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:my_portofolio_app/services/project_service.dart';
 
 class ProjectProvider with ChangeNotifier {
   final projectKey = GlobalKey<FormState>();
@@ -11,7 +12,7 @@ class ProjectProvider with ChangeNotifier {
   final linkController = TextEditingController();
   final technologyController = TextEditingController();
 
-  final List<Project> _projects = [];
+  List<Project> _projects = [];
   List<Project> get projects => _projects;
 
   Project projectData = Project();
@@ -20,10 +21,32 @@ class ProjectProvider with ChangeNotifier {
   int? _projectIndex;
   int? get projectIndex => _projectIndex;
 
-  bool isLoading = false;
+  bool _isLoading = false;
+  bool get isLoading => _isLoading;
+
+  String? _errorMessage;
+  String? get errorMessage => _errorMessage;
+
+  final ProjectService _projectService = ProjectService();
+
+  Future<void> fetchProjects() async {
+    _errorMessage = null;
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      _projects = await _projectService.fetchProjects();
+    } catch (e) {
+      _errorMessage = "Failed to fetch projects";
+      print(e);
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
 
   void setCompletionDate(DateTime? value) {
-    projectData.completionDate = value;
+    projectData.completion_date = value;
     notifyListeners();
   }
 
@@ -33,40 +56,40 @@ class ProjectProvider with ChangeNotifier {
   }
 
   void setImage(String? value) {
-    projectData.imagePath = value;
+    projectData.image_path = value;
     notifyListeners();
   }
 
-  void addTechnology(String technology) {
-    final tech = technology.trim();
-    if (tech.isNotEmpty) {
-      if (projectData.technologies == null) {
-        projectData.technologies = [];
-      }
-      projectData.technologies!.add(tech);
-      technologyController.clear();
-      notifyListeners();
-    }
-  }
+  // void addTechnology(String technology) {
+  //   final tech = technology.trim();
+  //   if (tech.isNotEmpty) {
+  //     if (projectData.technologies == null) {
+  //       projectData.technologies = [];
+  //     }
+  //     projectData.technologies!.add(tech);
+  //     technologyController.clear();
+  //     notifyListeners();
+  //   }
+  // }
 
-  void removeTechnology(String technology) {
-    if (projectData.technologies != null) {
-      projectData.technologies!.remove(technology);
-      notifyListeners();
-    }
-  }
+  // void removeTechnology(String technology) {
+  //   if (projectData.technologies != null) {
+  //     projectData.technologies!.remove(technology);
+  //     notifyListeners();
+  //   }
+  // }
 
-  void clearTechnologies() {
-    if (projectData.technologies != null) {
-      projectData.technologies!.clear();
-      notifyListeners();
-    }
-  }
+  // void clearTechnologies() {
+  //   if (projectData.technologies != null) {
+  //     projectData.technologies!.clear();
+  //     notifyListeners();
+  //   }
+  // }
 
   Future<void> pickImage() async {
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
-      projectData.imagePath = pickedFile.path;
+      projectData.image_path = pickedFile.path;
       notifyListeners();
     }
   }
@@ -74,7 +97,7 @@ class ProjectProvider with ChangeNotifier {
   Future<void> pickDate(BuildContext context) async {
     final picked = await showDatePicker(
       context: context,
-      initialDate: projectData.completionDate ?? DateTime.now(),
+      initialDate: projectData.completion_date ?? DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime(2100),
     );
@@ -87,69 +110,69 @@ class ProjectProvider with ChangeNotifier {
     return projectKey.currentState!.validate();
   }
 
-  void setLoading(bool isLoading) {
-    this.isLoading = isLoading;
-    notifyListeners();
-  }
+  // void setLoading(bool isLoading) {
+  //   this.isLoading = isLoading;
+  //   notifyListeners();
+  // }
 
-  void getEditProject(int index) {
-    final project = _projects[index];
-    _projectIndex = index;
+  Future<void> getEditProject(int projectId) async {
+    final index = _projects.indexWhere((p) => p.id == projectId);
 
-    titleController.text = project.title;
-    descriptionController.text = project.description;
-    linkController.text = project.link ?? "";
-    technologyController.clear();
+    if (index != -1) {
+      _projectIndex = projectId;
+      final project = _projects[index];
 
-    projectData = Project(
-      title: project.title,
-      description: project.description,
-      link: project.link,
-      category: project.category,
-      completionDate: project.completionDate,
-      imagePath: project.imagePath,
-      technologies: project.technologies != null
-          ? List<String>.from(project.technologies!)
-          : null,
-    );
+      titleController.text = project.title;
+      descriptionController.text = project.description;
+      linkController.text = project.project_url ?? "";
 
-    notifyListeners();
-  }
-
-  void saveProject() {
-    projectData.title = titleController.text;
-    projectData.description = descriptionController.text;
-    projectData.link = linkController.text.isEmpty ? null : linkController.text;
-
-    if (_projectIndex == null) {
-      _projects.add(
-        Project(
-          title: projectData.title,
-          description: projectData.description,
-          link: projectData.link,
-          category: projectData.category,
-          completionDate: projectData.completionDate,
-          imagePath: projectData.imagePath,
-          technologies: projectData.technologies != null
-              ? List<String>.from(projectData.technologies!)
-              : null,
-        ),
+      projectData = Project(
+        id: project.id,
+        title: project.title,
+        description: project.description,
+        project_url: project.project_url,
+        category: project.category,
+        completion_date: project.completion_date,
+        image_path: project.image_path,
       );
-    } else {
-      _projects[_projectIndex!] = Project(
-        title: projectData.title,
-        description: projectData.description,
-        link: projectData.link,
-        category: projectData.category,
-        completionDate: projectData.completionDate,
-        imagePath: projectData.imagePath,
-        technologies: projectData.technologies != null
-            ? List<String>.from(projectData.technologies!)
-            : null,
-      );
+
+      notifyListeners();
     }
+  }
+
+  Future<void> saveProject() async {
+    _isLoading = true;
     notifyListeners();
-    resetProject();
+
+    try {
+      projectData.title = titleController.text;
+      projectData.description = descriptionController.text;
+      projectData.project_url = linkController.text.isEmpty
+          ? null
+          : linkController.text;
+
+      if (_projectIndex == null) {
+        final newProject = await _projectService.addProject(projectData);
+        _projects.add(newProject);
+      } else {
+        projectData.id = _projectIndex;
+        await _projectService.updateProject(projectData);
+
+        final index = _projects.indexWhere((p) => p.id == _projectIndex);
+        if (index != -1) {
+          _projects[index] = projectData;
+        }
+      }
+
+      _errorMessage = null;
+    } catch (e) {
+      _errorMessage = e.toString();
+      print(_errorMessage);
+    } finally {
+      _isLoading = false;
+      resetProject();
+      notifyListeners();
+    }
   }
 
   void resetProject() {
@@ -162,8 +185,20 @@ class ProjectProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void deleteProject(int index) {
-    _projects.removeAt(index);
-    notifyListeners();
+  Future<void> deleteProject(int projectId) async {
+    try {
+      // Call the API to delete the project
+      await _projectService.deleteProject(projectId);
+
+      // Remove from local list
+      _projects.removeWhere((project) => project.id == projectId);
+
+      notifyListeners();
+    } catch (e) {
+      _errorMessage = "Failed to delete project: $e";
+      print(_errorMessage);
+      notifyListeners();
+      rethrow; // Re-throw to let the UI handle the error
+    }
   }
 }
