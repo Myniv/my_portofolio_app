@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "52876912540",
+    "project_id": "t-monument-471602-f3",
+    "storage_bucket": "t-monument-471602-f3.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:52876912540:android:60d51f7be16e9547b2ca59",
+        "android_client_info": {
+          "package_name": "com.example.my_portofolio_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "52876912540-gtlg42st1c6aqn6dm0oqli3gkbv8k7dk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA0caQgVprDqjAt6dplQSxb_xAR54KWmzg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "52876912540-gtlg42st1c6aqn6dm0oqli3gkbv8k7dk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
