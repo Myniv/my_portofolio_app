@@ -1,7 +1,10 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:my_portofolio_app/providers/auth_provider.dart';
 import 'package:my_portofolio_app/providers/profile_provider.dart';
 import 'package:my_portofolio_app/providers/project_provider.dart';
 import 'package:my_portofolio_app/routes.dart';
+import 'package:my_portofolio_app/screens/login_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:my_portofolio_app/screens/portofolio_screen.dart';
 import 'package:my_portofolio_app/screens/home_screen.dart';
@@ -10,12 +13,22 @@ import 'package:my_portofolio_app/widgets/custom_appbar.dart';
 import 'package:my_portofolio_app/screens/profile_screen.dart';
 import 'package:my_portofolio_app/widgets/custom_drawer.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: FirebaseOptions(
+      projectId: 't-monument-471602-f3', // Project ID
+      messagingSenderId: '52876912540', //Project Number
+      apiKey: 'AIzaSyA0caQgVprDqjAt6dplQSxb_xAR54KWmzg', //Web API Key
+      appId: '1:52876912540:android:60d51f7be16e9547b2ca59',
+    ), // App ID
+  );
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => ProfileProvider()),
         ChangeNotifierProvider(create: (_) => ProjectProvider()),
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
       ],
       child: MainApp(),
     ),
@@ -50,9 +63,14 @@ class _MainScreenState extends State<MainScreen> {
     setState(() => _currentIndex = index);
   }
 
-  final List<String> _titleScreen = ["Profile", "Portofolio"];
-  final List<IconData> _iconScreen = [Icons.person, Icons.work];
-  final List<Widget> _screens = [ProfilePage(), PortofolioScreen()];
+  final List<String> _titleScreen = ["Login","Home", "Profile", "Portofolio"];
+  final List<IconData> _iconScreen = [Icons.login, Icons.home, Icons.person, Icons.work];
+  final List<Widget> _screens = [
+    LoginScreen(),
+    HomeScreen(),
+    ProfilePage(),
+    PortofolioScreen(),
+  ];
 
   @override
   Widget build(BuildContext context) {

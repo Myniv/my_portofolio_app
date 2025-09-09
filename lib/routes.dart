@@ -3,9 +3,11 @@ import 'package:flutter/widgets.dart';
 import 'package:my_portofolio_app/screens/about_screen.dart';
 import 'package:my_portofolio_app/screens/add_project_screen.dart';
 import 'package:my_portofolio_app/screens/edit_profile_screen.dart';
+import 'package:my_portofolio_app/screens/home_screen.dart';
 import 'package:my_portofolio_app/screens/not_found_screen.dart';
 import 'package:my_portofolio_app/screens/portofolio_screen.dart';
 import 'package:my_portofolio_app/screens/profile_screen.dart';
+import 'package:my_portofolio_app/screens/register_screen.dart';
 import 'package:my_portofolio_app/screens/setting_screen.dart';
 
 class AppRoutes {
@@ -16,9 +18,16 @@ class AppRoutes {
   static const addProject = '/addProject';
   static const setting = '/setting';
   static const about = '/about';
+  static const register = '/register';
+  static const login = '/login';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
+      case home:
+        return MaterialPageRoute(
+          builder: (_) => HomeScreen(),
+          settings: settings,
+      );
       case profile:
         return MaterialPageRoute(
           builder: (_) => ProfilePage(),
@@ -47,6 +56,11 @@ class AppRoutes {
       case about:
         return MaterialPageRoute(
           builder: (_) => AboutScreen(),
+          settings: settings,
+        );
+      case register:
+        return MaterialPageRoute(
+          builder: (_) => RegisterScreen(),
           settings: settings,
         );
       default:
