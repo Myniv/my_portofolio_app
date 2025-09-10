@@ -1,105 +1,89 @@
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:my_portofolio_app/models/profile.dart';
-
-enum ProfileField { nameProfession, email, phone, address, bio }
+import '../services/profile_service.dart';
 
 class ProfileProvider extends ChangeNotifier {
-  final profileKey = GlobalKey<FormState>();
-  final value = TextEditingController();
-  final value2 = TextEditingController();
-  Profile profile = Profile();
+  final ProfileService _profileService = ProfileService();
 
-  final picker = ImagePicker();
+  Profile? _profile;
+  Profile? get profile => _profile;
 
-  Future<void> pickImage() async {
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      profile.profilePicturePath = pickedFile.path;
+  bool _isLoading = false;
+  bool get isLoading => _isLoading;
+
+  // form key
+  final formKey = GlobalKey<FormState>();
+
+  // controllers
+  final nameController = TextEditingController();
+  final professionController = TextEditingController();
+  final phoneController = TextEditingController();
+  final addressController = TextEditingController();
+  final bioController = TextEditingController();
+
+  // load profile from Firestore
+  Future<void> loadProfile(String uid) async {
+    _setLoading(true);
+    try {
+      _profile = await _profileService.getUserProfile(uid);
+
+      if (_profile != null) {
+        nameController.text = _profile!.name;
+        professionController.text = _profile!.profession ?? '';
+        phoneController.text = _profile!.phone ?? '';
+        addressController.text = _profile!.address ?? '';
+        bioController.text = _profile!.bio ?? '';
+      }
       notifyListeners();
+    } finally {
+      _setLoading(false);
     }
   }
 
-  void addEditProfileField(ProfileField field) {
-    switch (field) {
-      case ProfileField.nameProfession:
-        profile.name = value.text;
-        profile.profession = value2.text;
-        notifyListeners();
-        break;
-      case ProfileField.email:
-        profile.email = value.text;
-        notifyListeners();
-        break;
-      case ProfileField.phone:
-        profile.phone = int.parse(value.text);
-        notifyListeners();
-        break;
-      case ProfileField.address:
-        profile.address = value.text;
-        notifyListeners();
-        break;
-      case ProfileField.bio:
-        profile.bio = value.text;
-        notifyListeners();
-        break;
-      default:
+  // update profile ke Firestore
+  Future<void> updateProfile() async {
+    if (_profile == null) return;
+    if (!formKey.currentState!.validate()) return;
+
+    _setLoading(true);
+    try {
+      final updated = Profile(
+        uid: _profile!.uid,
+        email: _profile!.email,
+        name: nameController.text,
+        profession: professionController.text,
+        phone: phoneController.text,
+        address: addressController.text,
+        bio: bioController.text,
+        profilePicturePath: _profile!.profilePicturePath,
+        role: _profile!.role,
+      );
+
+      await _profileService.updateUserProfile(updated);
+      _profile = updated;
+      notifyListeners();
+    } finally {
+      _setLoading(false);
     }
   }
 
-  void getProfileData(ProfileField field) {
-    switch (field) {
-      case ProfileField.nameProfession:
-        value.text = profile.name ?? '';
-        value2.text = profile.profession ?? '';
-        notifyListeners();
-        break;
-      case ProfileField.email:
-        value.text = profile.email ?? '';
-        notifyListeners();
-        break;
-      case ProfileField.phone:
-        value.text = profile.phone?.toString() ?? '';
-        notifyListeners();
-        break;
-      case ProfileField.address:
-        value.text = profile.address ?? '';
-        notifyListeners();
-        break;
-      case ProfileField.bio:
-        value.text = profile.bio ?? '';
-        notifyListeners();
-        break;
-      default:
-    }
+  void clearProfile() {
+    _profile = null;
+    notifyListeners();
   }
 
-  void deleteProfileField(ProfileField field) {
-    switch (field) {
-      case ProfileField.nameProfession:
-        profile.name = '';
-        profile.profession = '';
-        profile.profilePicturePath = null;
-        notifyListeners();
-        break;
-      case ProfileField.email:
-        profile.email = '';
-        notifyListeners();
-        break;
-      case ProfileField.phone:
-        profile.phone = 0;
-        notifyListeners();
-        break;
-      case ProfileField.address:
-        profile.address = '';
-        notifyListeners();
+  void _setLoading(bool value) {
+    _isLoading = value;
+    notifyListeners();
+  }
 
-        break;
-      case ProfileField.bio:
-        profile.bio = '';
-        notifyListeners();
-        break;
-      default:
-    }
+  @override
+  void dispose() {
+    nameController.dispose();
+    professionController.dispose();
+    phoneController.dispose();
+    addressController.dispose();
+    bioController.dispose();
+    super.dispose();
   }
 }

@@ -1,10 +1,9 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:my_portofolio_app/providers/profile_provider.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-import 'package:my_portofolio_app/widgets/custom_appbar.dart';
+import 'package:intl/intl.dart';
+import '../providers/profile_provider.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -14,195 +13,474 @@ class EditProfileScreen extends StatefulWidget {
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
-  bool _initialized = false;
+  File? _selectedImage;
+  final ImagePicker _picker = ImagePicker();
+  DateTime? _selectedBirthday;
 
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (!_initialized) {
-      _initialized = true;
-      final args =
-          ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
-
-      final title = args?['title'] as String;
-      final value = args?['value'] as String;
-      final value2 = args?['value2'] as String?;
-      final profileField = args?['profileField'] as ProfileField;
-
-      final profileProvider = Provider.of<ProfileProvider>(
-        context,
-        listen: false,
-      );
-      profileProvider.getProfileData(profileField);
-      _initialized = true;
+  @override
+  void initState() {
+    super.initState();
+    final provider = Provider.of<ProfileProvider>(context, listen: false);
+    // Initialize birthday from existing profile data if available
+    if (provider.profile?.birthday != null) {
+      _selectedBirthday = provider.profile!.birthday;
     }
+  }
+
+  Future<void> _pickImage() async {
+    try {
+      final XFile? image = await _picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 800,
+        maxHeight: 800,
+        imageQuality: 85,
+      );
+
+      if (image != null) {
+        setState(() {
+          _selectedImage = File(image.path);
+        });
+      }
+    } catch (e) {
+      _showErrorDialog('Failed to pick image: $e');
+    }
+  }
+
+  Future<void> _takePicture() async {
+    try {
+      final XFile? image = await _picker.pickImage(
+        source: ImageSource.camera,
+        maxWidth: 800,
+        maxHeight: 800,
+        imageQuality: 85,
+      );
+
+      if (image != null) {
+        setState(() {
+          _selectedImage = File(image.path);
+        });
+      }
+    } catch (e) {
+      _showErrorDialog('Failed to take picture: $e');
+    }
+  }
+
+  Future<void> _selectBirthday() async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedBirthday ?? DateTime(2000),
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.light(
+              primary: Colors.blueAccent,
+              onPrimary: Colors.white,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (picked != null && picked != _selectedBirthday) {
+      setState(() {
+        _selectedBirthday = picked;
+      });
+    }
+  }
+
+  void _showImageSourceDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Select Profile Picture'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(
+                  Icons.photo_library,
+                  color: Colors.blueAccent,
+                ),
+                title: const Text('Gallery'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickImage();
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.camera_alt, color: Colors.blueAccent),
+                title: const Text('Camera'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _takePicture();
+                },
+              ),
+              if (_selectedImage != null ||
+                  (Provider.of<ProfileProvider>(
+                        context,
+                        listen: false,
+                      ).profile?.profilePicturePath !=
+                      null))
+                ListTile(
+                  leading: const Icon(Icons.delete, color: Colors.red),
+                  title: const Text('Remove Picture'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    setState(() {
+                      _selectedImage = null;
+                    });
+                  },
+                ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Error'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _calculateAge(DateTime birthday) {
+    final now = DateTime.now();
+    int age = now.year - birthday.year;
+    if (now.month < birthday.month ||
+        (now.month == birthday.month && now.day < birthday.day)) {
+      age--;
+    }
+    return age.toString();
   }
 
   @override
   Widget build(BuildContext context) {
-    final profileProvider = Provider.of<ProfileProvider>(context);
-    final args =
-        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
-    final title = args?['title'] as String;
-    final value = args?['value'] as String;
-    final value2 = args?['value2'] as String?;
-    final profileField = args?['profileField'] as ProfileField;
+    final provider = Provider.of<ProfileProvider>(context);
 
     return Scaffold(
-      backgroundColor: Colors.grey[100],
-      appBar: CustomAppbar(
-        title: "Edit $title",
-        icon: Icons.arrow_back,
-        onIconPress: () {
-          Navigator.pop(context);
-        },
+      appBar: AppBar(
+        title: const Text("Edit Profile"),
+        backgroundColor: Colors.blueAccent,
+        foregroundColor: Colors.white,
+        elevation: 0,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20.0),
-        child: Form(
-          key: profileProvider.profileKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Update your $title",
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                "Please enter the new details below.",
-                style: TextStyle(color: Colors.grey[600]),
-              ),
-              const SizedBox(height: 24),
-
-              if (profileField == ProfileField.nameProfession) ...[
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Colors.blueAccent.withOpacity(0.1), Colors.white],
+          ),
+        ),
+        child: SafeArea(
+          child: Form(
+            key: provider.formKey,
+            child: ListView(
+              padding: const EdgeInsets.all(20),
+              children: [
+                // Profile Picture Section
                 Center(
-                  child: Stack(
+                  child: Column(
                     children: [
-                      CircleAvatar(
-                        radius: 55,
-                        backgroundColor: Colors.grey[300],
-                        backgroundImage:
-                            profileProvider.profile.profilePicturePath != null
-                            ? FileImage(
-                                File(
-                                  profileProvider.profile.profilePicturePath!,
-                                ),
-                              )
-                            : const AssetImage(
-                                    'assets/images/profile.png',
-                                  )
-                                  as ImageProvider,
-                      ),
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: InkWell(
-                          onTap: () => profileProvider.pickImage(),
-                          child: Container(
-                            padding: const EdgeInsets.all(6),
+                      Stack(
+                        children: [
+                          Container(
                             decoration: BoxDecoration(
-                              color: Colors.blueAccent,
                               shape: BoxShape.circle,
+                              border: Border.all(
+                                color: Colors.blueAccent,
+                                width: 3,
+                              ),
                             ),
-                            child: const Icon(
-                              Icons.camera_alt,
-                              color: Colors.white,
-                              size: 20,
+                            child: CircleAvatar(
+                              radius: 60,
+                              backgroundImage: _selectedImage != null
+                                  ? FileImage(_selectedImage!)
+                                  : (provider.profile?.profilePicturePath !=
+                                            null
+                                        ? NetworkImage(
+                                            provider
+                                                .profile!
+                                                .profilePicturePath!,
+                                          )
+                                        : null),
+                              child:
+                                  _selectedImage == null &&
+                                      provider.profile?.profilePicturePath ==
+                                          null
+                                  ? const Icon(
+                                      Icons.person,
+                                      size: 60,
+                                      color: Colors.blueGrey,
+                                    )
+                                  : null,
                             ),
                           ),
+                          Positioned(
+                            bottom: 0,
+                            right: 0,
+                            child: GestureDetector(
+                              onTap: _showImageSourceDialog,
+                              child: Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: const BoxDecoration(
+                                  color: Colors.blueAccent,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.camera_alt,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        "Tap camera icon to change photo",
+                        style: TextStyle(
+                          color: Colors.blueGrey[600],
+                          fontSize: 12,
                         ),
                       ),
                     ],
                   ),
                 ),
-              ],
-              const SizedBox(height: 24),
 
-              TextFormField(
-                controller: profileProvider.value,
-                decoration: InputDecoration(
-                  labelText: value2 != null ? 'Name' : title,
-                  hintText: value2 != null
-                      ? 'Enter your name'
-                      : 'Enter your $title',
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
+                const SizedBox(height: 30),
+
+                // Form Fields
+                _buildTextField(
+                  controller: provider.nameController,
+                  label: "Full Name",
+                  icon: Icons.person,
+                  validator: (val) =>
+                      val == null || val.isEmpty ? "Name is required" : null,
                 ),
-                keyboardType: profileField == ProfileField.phone
-                    ? TextInputType.number
-                    : profileField == ProfileField.email
-                    ? TextInputType.emailAddress
-                    : TextInputType.text,
-                inputFormatters: profileField == ProfileField.phone
-                    ? [FilteringTextInputFormatter.digitsOnly]
-                    : [],
-              ),
-              const SizedBox(height: 20),
 
-              if (value2 != null) ...[
-                TextFormField(
-                  controller: profileProvider.value2,
-                  decoration: InputDecoration(
-                    labelText: 'Profession',
-                    hintText: 'Enter your profession',
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(
+                const SizedBox(height: 16),
+
+                _buildTextField(
+                  controller: provider.professionController,
+                  label: "Profession",
+                  icon: Icons.work,
+                ),
+
+                const SizedBox(height: 16),
+
+                // Birthday Field
+                GestureDetector(
+                  onTap: _selectBirthday,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.blueAccent),
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.cake, color: Colors.blueAccent),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Birthday",
+                                style: TextStyle(
+                                  color: Colors.blueGrey[600],
+                                  fontSize: 12,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                _selectedBirthday != null
+                                    ? "${DateFormat('dd MMMM yyyy').format(_selectedBirthday!)} (${_calculateAge(_selectedBirthday!)} years old)"
+                                    : "Select your birthday",
+                                style: TextStyle(
+                                  color: _selectedBirthday != null
+                                      ? Colors.black87
+                                      : Colors.grey[500],
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Icon(
+                          Icons.calendar_today,
+                          color: Colors.blueGrey[400],
+                          size: 20,
+                        ),
+                      ],
                     ),
                   ),
                 ),
+
+                const SizedBox(height: 16),
+
+                _buildTextField(
+                  controller: provider.phoneController,
+                  label: "Phone Number",
+                  icon: Icons.phone,
+                  keyboardType: TextInputType.phone,
+                ),
+
+                const SizedBox(height: 16),
+
+                _buildTextField(
+                  controller: provider.addressController,
+                  label: "Address",
+                  icon: Icons.location_on,
+                  maxLines: 2,
+                ),
+
+                const SizedBox(height: 16),
+
+                _buildTextField(
+                  controller: provider.bioController,
+                  label: "About Me",
+                  icon: Icons.info,
+                  maxLines: 4,
+                  hint: "Tell us about yourself...",
+                ),
+
+                const SizedBox(height: 30),
+
+                // Save Button
+                provider.isLoading
+                    ? const Center(
+                        child: CircularProgressIndicator(
+                          color: Colors.blueAccent,
+                        ),
+                      )
+                    : Container(
+                        width: double.infinity,
+                        height: 50,
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Colors.blueAccent, Colors.blue],
+                          ),
+                          borderRadius: BorderRadius.circular(25),
+                        ),
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            if (provider.formKey.currentState!.validate()) {
+                              try {
+                                await provider.updateProfile();
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        'Profile updated successfully!',
+                                      ),
+                                      backgroundColor: Colors.green,
+                                    ),
+                                  );
+                                  Navigator.pop(context);
+                                }
+                              } catch (e) {
+                                _showErrorDialog(
+                                  'Failed to update profile: $e',
+                                );
+                              }
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.transparent,
+                            shadowColor: Colors.transparent,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(25),
+                            ),
+                          ),
+                          child: const Text(
+                            "Save Changes",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+
                 const SizedBox(height: 20),
               ],
-
-              const SizedBox(height: 10),
-
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  icon: const Icon(Icons.save, size: 20),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blueAccent,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    elevation: 3,
-                  ),
-                  onPressed: () {
-                    final newValue = profileProvider.value.text.trim();
-                    final newValue2 = profileProvider.value2.text.trim();
-
-                    if (newValue.isNotEmpty) {
-                      context.read<ProfileProvider>().addEditProfileField(
-                        profileField,
-                      );
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('$title edited successfully'),
-                          backgroundColor: Colors.green,
-                        ),
-                      );
-                      Navigator.pop(context);
-                    }
-                  },
-                  label: const Text(
-                    'Save Changes',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    TextInputType? keyboardType,
+    int maxLines = 1,
+    String? hint,
+    String? Function(String?)? validator,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: TextFormField(
+        controller: controller,
+        decoration: InputDecoration(
+          labelText: label,
+          hintText: hint,
+          prefixIcon: Icon(icon, color: Colors.blueAccent),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Colors.blueAccent),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Colors.blueAccent, width: 2),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Colors.blueGrey[300]!),
+          ),
+          filled: true,
+          fillColor: Colors.white,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 12,
+          ),
+        ),
+        keyboardType: keyboardType,
+        maxLines: maxLines,
+        validator: validator,
       ),
     );
   }
