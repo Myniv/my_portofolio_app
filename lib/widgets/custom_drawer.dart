@@ -1,28 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:my_portofolio_app/providers/auth_provider.dart';
+import 'package:my_portofolio_app/routes.dart';
+import 'package:provider/provider.dart';
 
 class CustomDrawer extends StatelessWidget {
-  // final Function(int) _changeTab;
-  // final List<String> title;
-  // final List<IconData> icon;
-  // const CustomDrawer({
-  //   super.key,
-  //   required dynamic Function(int) onSelect,
-  //   required this.title,
-  //   required this.icon,
-  // }) : _changeTab = onSelect;
-
   @override
   Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context);
+
     return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
+      child: Column(
         children: [
           SizedBox(
             height: 100,
             child: DrawerHeader(
               decoration: BoxDecoration(color: Colors.blueAccent),
               child: Row(
-                // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   IconButton(
                     icon: Icon(Icons.menu_open, color: Colors.white),
@@ -38,27 +31,34 @@ class CustomDrawer extends StatelessWidget {
               ),
             ),
           ),
-          // for (int i = 0; i < title.length; i++)
-          //   ListTile(
-          //     leading: Icon(icon[i]),
-          //     title: Text(title[i]),
-          //     onTap: () {
-          //       _changeTab(i);
-          //       Navigator.pop(context);
-          //     },
-          //   ),
-          ListTile(
-            leading: Icon(Icons.info),
-            title: Text('About'),
-            onTap: () {
-              Navigator.pushNamed(context, '/about');
-            },
+          Expanded(
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: [
+                ListTile(
+                  leading: Icon(Icons.info),
+                  title: Text('About'),
+                  onTap: () => Navigator.pushNamed(context, '/about'),
+                ),
+                ListTile(
+                  leading: Icon(Icons.settings),
+                  title: Text('Settings'),
+                  onTap: () => Navigator.pushNamed(context, '/setting'),
+                ),
+              ],
+            ),
           ),
+
           ListTile(
-            leading: Icon(Icons.settings),
-            title: Text('Settings'),
-            onTap: () {
-              Navigator.pushNamed(context, '/setting');
+            tileColor: Colors.red,
+            textColor: Colors.white,
+            leading: Icon(Icons.logout, color: Colors.white),
+            title: Text('Logout'),
+            onTap: () async {
+              await authProvider.signOut();
+              if (context.mounted) {
+                Navigator.pushReplacementNamed(context, AppRoutes.login);
+              }
             },
           ),
         ],
