@@ -1,9 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:my_portofolio_app/models/profile.dart';
+import 'package:my_portofolio_app/services/profile_service.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final ProfileService _profileService = ProfileService();
 
   Future<User?> signInWithEmail(String email, String password) async {
     try {
@@ -11,10 +14,12 @@ class AuthService {
         email: email,
         password: password,
       );
-      print("Credentials : ${credential.user}");
+
+      print("User in auth service: ${credential.user}");
+      // print("Credentials : ${credential.user}");
       return credential.user;
     } on FirebaseAuthException catch (e) {
-      print("error : ${e.message}");
+      // print("error : ${e.message}");
       throw Exception(e.message) ?? "Login failed";
     }
   }
@@ -25,6 +30,17 @@ class AuthService {
         email: email,
         password: password,
       );
+
+      final user = credential.user;
+      if (user != null) {
+        final profile = Profile(
+          uid: user.uid,
+          name: user.email!.split('@')[0],
+          email: user.email!,
+          role: "member",
+        );
+        await _profileService.createUserProfile(profile);
+      }
       return credential.user;
     } on FirebaseAuthException catch (e) {
       throw Exception(e.message) ?? "Registration failed";
@@ -50,11 +66,26 @@ class AuthService {
 
       User? user = userCredential.user;
 
-      if (user != null) {
-        await user.updatePhotoURL(googleUser.photoUrl);
-        await user.updateDisplayName(googleUser.displayName);
-        await user.reload();
+      final exists = await _profileService.checkUserExists(user!.uid);
+
+      if (!exists) {
+        final profile = Profile(
+          uid: user.uid,
+          name: user.displayName ?? "No Name",
+          email: user.email!,
+          role: "member",
+          profilePicturePath: user.photoURL,
+        );
+        await _profileService.createUserProfile(profile);
       }
+
+      print("User in auth service: $exists");
+
+      // if (user != null) {
+      //   await user.updatePhotoURL(googleUser.photoUrl);
+      //   await user.updateDisplayName(googleUser.displayName);
+      //   await user.reload();
+      // }
 
       return userCredential.user;
     } catch (e) {

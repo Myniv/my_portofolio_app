@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_portofolio_app/providers/profile_provider.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../routes.dart';
@@ -21,6 +22,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
+    final profileProvider = Provider.of<ProfileProvider>(context);
 
     return Scaffold(
       body: SingleChildScrollView(
@@ -100,16 +102,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           if (_formKey.currentState!.validate()) {
                             setState(() => _isLoading = true);
                             try {
-                              await authProvider.registerWithEmail(
-                                _emailController.text.trim(),
-                                _passwordController.text.trim(),
-                              );
+                              final success = await authProvider
+                                  .registerWithEmail(
+                                    _emailController.text.trim(),
+                                    _passwordController.text.trim(),
+                                    profileProvider,
+                                  );
 
-                              if (mounted) {
-                                Navigator.pushReplacementNamed(
-                                  context,
-                                  AppRoutes.home,
-                                );
+                              if (success && profileProvider.profile != null) {
+                                // if (profileProvider.profile!.role == "admin") {
+                                //   //TODO CHANGE Admin Dashboard
+                                //   Navigator.pushReplacementNamed(
+                                //     context,
+                                //     AppRoutes.about,
+                                //   );
+                                // } else {
+                                //   Navigator.pushReplacementNamed(
+                                //     context,
+                                //     AppRoutes.home,
+                                //   );
+                                // }
                               }
                             } catch (e) {
                               ScaffoldMessenger.of(context).showSnackBar(

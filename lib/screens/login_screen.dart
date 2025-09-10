@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_portofolio_app/providers/auth_provider.dart';
+import 'package:my_portofolio_app/providers/profile_provider.dart';
 import 'package:my_portofolio_app/routes.dart';
 import 'package:provider/provider.dart';
 
@@ -17,6 +18,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
+    final profileProvider = Provider.of<ProfileProvider>(context);
     return Scaffold(
       body: Center(
         child: SingleChildScrollView(
@@ -76,10 +78,19 @@ class _LoginScreenState extends State<LoginScreen> {
                     final success = await authProvider.signInWithEmail(
                       email,
                       password,
+                      profileProvider,
                     );
 
-                    if (success && mounted) {
-                      Navigator.pushReplacementNamed(context, AppRoutes.home);
+                    if (success && profileProvider.profile != null && mounted) {
+                      // if (profileProvider.profile!.role == "admin") {
+                      //   //TODO change to admin dashboard
+                      //   Navigator.pushReplacementNamed(
+                      //     context,
+                      //     AppRoutes.about,
+                      //   );
+                      // } else {
+                      //   Navigator.pushReplacementNamed(context, AppRoutes.home);
+                      // }
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
@@ -111,7 +122,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     style: TextStyle(color: Colors.black87, fontSize: 16),
                   ),
                   onPressed: () async {
-                    final success = await authProvider.signInWithGoogle();
+                    final success = await authProvider.signInWithGoogle(profileProvider);
                     if (success && mounted) {
                       Navigator.pushReplacementNamed(context, AppRoutes.home);
                     } else {

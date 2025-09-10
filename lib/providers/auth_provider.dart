@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
+import 'package:my_portofolio_app/providers/profile_provider.dart';
 import 'package:my_portofolio_app/services/auth_service.dart';
 
 class AuthProvider extends ChangeNotifier {
@@ -18,10 +19,20 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<bool> signInWithEmail(String email, String password) async {
+  Future<bool> signInWithEmail(
+    String email,
+    String password,
+    ProfileProvider profileProvider,
+  ) async {
     _setLoading(true);
     try {
       _user = await _authService.signInWithEmail(email, password);
+
+      if (_user != null) {
+        await profileProvider.loadProfile(_user!.uid);
+        _user = user;
+        print("User in auth provider: $_user");
+      }
       _errorMessage = null;
       notifyListeners();
       return true;
@@ -34,11 +45,17 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> registerWithEmail(String email, String password) async {
+  Future<bool> registerWithEmail(
+    String email,
+    String password,
+    ProfileProvider profileProvider,
+  ) async {
     _setLoading(true);
     try {
       _user = await _authService.registerWithEmail(email, password);
       _errorMessage = null;
+
+      await profileProvider.loadProfile(user!.uid);
       notifyListeners();
       return true;
     } catch (e) {
@@ -50,10 +67,17 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> signInWithGoogle() async {
+  Future<bool> signInWithGoogle(ProfileProvider profileProvider) async {
     _setLoading(true);
     try {
       _user = await _authService.signInWithGoogle();
+      print("User in auth provider: $_user");
+
+      if (_user != null) {
+        await profileProvider.loadProfile(_user!.uid);
+        _user = user;
+        print("User in auth provider: $_user");
+      }
       _errorMessage = null;
       notifyListeners();
       return _user != null;
