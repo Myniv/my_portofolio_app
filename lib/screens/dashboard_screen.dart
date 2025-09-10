@@ -4,8 +4,8 @@ import 'package:my_portofolio_app/providers/profile_provider.dart';
 import 'package:my_portofolio_app/routes.dart';
 import 'package:provider/provider.dart';
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+class DashboardScreen extends StatelessWidget {
+  const DashboardScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +14,7 @@ class HomeScreen extends StatelessWidget {
     final user = authProvider.user;
     return Scaffold(
       appBar: AppBar(
-        title: Text('Home'),
+        title: Text('Dashboard'),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
@@ -43,7 +43,7 @@ class HomeScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              "Welcome, ${user?.displayName ?? user?.email ?? 'User'}!",
+              "ADMIN DASHBOARD ${user?.displayName ?? user?.email ?? 'User'}!",
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
