@@ -95,40 +95,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
             CircleAvatar(
               radius: 50,
               backgroundImage:
-                  profile.profilePicturePath != null &&
-                      profile.profilePicturePath.isNotEmpty
+                  (profile.profilePicturePath != null &&
+                      profile.profilePicturePath!.isNotEmpty)
                   ? NetworkImage(profile.profilePicturePath!)
                   : null,
               child:
-                  profile.profilePicturePath == null ||
-                      profile.profilePicturePath!.isEmpty
+                  (profile.profilePicturePath == null ||
+                      profile.profilePicturePath!.isEmpty)
                   ? const Icon(Icons.person, size: 50)
                   : null,
             ),
             const SizedBox(height: 10),
             Text(
-              (profile.name != null && profile.name!.isNotEmpty)
-                  ? profile.name!
-                  : "No Data",
+              (profile.name?.isNotEmpty ?? false) ? profile.name! : "No Data",
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
-                fontStyle: (profile.name == null || profile.name!.isEmpty)
+                fontStyle: (profile.name?.isEmpty ?? true)
                     ? FontStyle.italic
                     : FontStyle.normal,
               ),
             ),
             const SizedBox(height: 5),
             Text(
-              (profile.profession != null && profile.profession!.isNotEmpty)
+              (profile.profession?.isNotEmpty ?? false)
                   ? profile.profession!
                   : "No Data",
               style: TextStyle(
                 fontSize: 16,
                 color: Colors.white,
-                fontStyle:
-                    (profile.profession == null || profile.profession!.isEmpty)
+                fontStyle: (profile.profession?.isEmpty ?? true)
                     ? FontStyle.italic
                     : FontStyle.normal,
               ),
@@ -144,16 +141,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
       padding: const EdgeInsets.only(left: 10.0, right: 10.0, top: 30.0),
       child: Column(
         children: [
-          buildInfoBox(Icons.email, profile.email ?? "No Data", "Email"),
-          buildInfoBox(Icons.phone, profile.phone ?? "No Data", "Phone Number"),
+          buildInfoBox(Icons.email, profile?.email ?? "No Data", "Email"),
+          buildInfoBox(
+            Icons.phone,
+            profile?.phone ?? "No Data",
+            "Phone Number",
+          ),
           buildInfoBox(
             Icons.location_on,
-            profile.address ?? "No Data",
+            profile?.address ?? "No Data",
             "Address",
           ),
           buildInfoBox(
             Icons.cake,
-            DateFormat('dd MMMM yyyy').format(profile.birthday!),
+            profile?.birthday != null
+                ? DateFormat('dd MMMM yyyy').format(profile!.birthday!)
+                : "No Data",
             "Birthday",
           ),
         ],
@@ -210,8 +213,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: Column(
         children: [
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            margin: EdgeInsets.only(bottom: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            margin: const EdgeInsets.only(bottom: 10),
             decoration: BoxDecoration(
               border: Border.all(color: Colors.blueAccent),
               borderRadius: BorderRadius.circular(12),
@@ -224,19 +227,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
+                      const Text(
                         "About Me",
                         style: TextStyle(
                           color: Colors.blueGrey,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      SizedBox(height: 4),
+                      const SizedBox(height: 4),
                       Text(
-                        profile!.bio ?? "No Data",
+                        (profile.bio?.isNotEmpty ?? false)
+                            ? profile.bio!
+                            : "No Data",
                         style: TextStyle(
                           color: Colors.blueGrey,
-                          fontStyle: profile.bio == null || profile.bio!.isEmpty
+                          fontStyle: (profile.bio?.isEmpty ?? true)
                               ? FontStyle.italic
                               : FontStyle.normal,
                         ),
