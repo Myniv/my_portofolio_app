@@ -1,29 +1,105 @@
+import 'dart:io';
+import 'package:path/path.dart' as path;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:my_portofolio_app/models/profile.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ProfileService {
   final CollectionReference profiles = FirebaseFirestore.instance.collection(
     "users",
   );
+  final SupabaseClient _supabase = Supabase.instance.client;
 
   Future<void> createUserProfile(Profile profile) async {
-    await profiles.doc(profile.uid).set(profile.toMap());
+    try {
+      await profiles.doc(profile.uid).set(profile.toMap());
+    } catch (e) {
+      print("Error creating user profile: $e");
+      rethrow;
+    }
   }
 
   Future<Profile?> getUserProfile(String uid) async {
-    final doc = await profiles.doc(uid).get();
-    if (doc.exists) {
-      return Profile.fromMap(doc.data() as Map<String, dynamic>);
+    try {
+      final doc = await profiles.doc(uid).get();
+      if (doc.exists) {
+        return Profile.fromMap(doc.data() as Map<String, dynamic>);
+      }
+      return null;
+    } catch (e) {
+      print("Error getting user profile: $e");
+      rethrow;
     }
-    return null;
+  }
+
+  Future<List<Profile>> getAllUserProfiles() async {
+    try {
+      final querySnapshot = await profiles.get();
+      return querySnapshot.docs.map((doc) {
+        return Profile.fromMap(doc.data() as Map<String, dynamic>);
+      }).toList();
+    } catch (e) {
+      print("Error getting all user profiles: $e");
+      rethrow;
+    }
   }
 
   Future<void> updateUserProfile(Profile profile) async {
-    await profiles.doc(profile.uid).update(profile.toMap());
+    try {
+      await profiles.doc(profile.uid).update(profile.toMap());
+    } catch (e) {
+      print("Error updating user profile: $e");
+      rethrow;
+    }
   }
 
   Future<bool> checkUserExists(String uid) async {
-    final doc = await profiles.doc(uid).get();
-    return doc.exists;
+    try {
+      final doc = await profiles.doc(uid).get();
+      return doc.exists;
+    } catch (e) {
+      print("Error checking if user exists: $e");
+      rethrow;
+    }
+  }
+
+  Future<String> uploadProfilePhoto(
+    String uid,
+    File file,
+    String oldUrl,
+  ) async {
+    try {
+      final timeStamp = DateTime.now().millisecondsSinceEpoch.toString();
+      final ext = path.extension(file.path);
+      final fileName = "${uid}_$timeStamp$ext";
+
+      final bucket = _supabase.storage.from('profile_photos');
+
+      final existingFiles = await bucket.list(
+        path: '',
+        searchOptions: SearchOptions(search: oldUrl),
+      );
+
+      if (existingFiles.isNotEmpty) {
+        await bucket.remove([oldUrl]);
+        print(oldUrl);
+        print("Deleted old profile photo: $oldUrl");
+      }
+
+      await _supabase.storage
+          .from('profile_photos')
+          .upload(fileName, file, fileOptions: const FileOptions(upsert: true));
+
+      final url = _supabase.storage
+          .from('profile_photos')
+          .getPublicUrl(fileName);
+
+      await profiles.doc(uid).update({'profilePicturePath': url});
+
+      return url;
+    } catch (e) {
+      print("Error in uploadProfilePhoto: $e");
+      rethrow;
+    }
   }
 }

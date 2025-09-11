@@ -13,161 +13,7 @@ class EditProfileScreen extends StatefulWidget {
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
-  File? _selectedImage;
-  final ImagePicker _picker = ImagePicker();
-  DateTime? _selectedBirthday;
-
   @override
-  void initState() {
-    super.initState();
-    final provider = Provider.of<ProfileProvider>(context, listen: false);
-    // Initialize birthday from existing profile data if available
-    if (provider.profile?.birthday != null) {
-      _selectedBirthday = provider.profile!.birthday;
-    }
-  }
-
-  Future<void> _pickImage() async {
-    try {
-      final XFile? image = await _picker.pickImage(
-        source: ImageSource.gallery,
-        maxWidth: 800,
-        maxHeight: 800,
-        imageQuality: 85,
-      );
-
-      if (image != null) {
-        setState(() {
-          _selectedImage = File(image.path);
-        });
-      }
-    } catch (e) {
-      _showErrorDialog('Failed to pick image: $e');
-    }
-  }
-
-  Future<void> _takePicture() async {
-    try {
-      final XFile? image = await _picker.pickImage(
-        source: ImageSource.camera,
-        maxWidth: 800,
-        maxHeight: 800,
-        imageQuality: 85,
-      );
-
-      if (image != null) {
-        setState(() {
-          _selectedImage = File(image.path);
-        });
-      }
-    } catch (e) {
-      _showErrorDialog('Failed to take picture: $e');
-    }
-  }
-
-  Future<void> _selectBirthday() async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: _selectedBirthday ?? DateTime(2000),
-      firstDate: DateTime(1900),
-      lastDate: DateTime.now(),
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.light(
-              primary: Colors.blueAccent,
-              onPrimary: Colors.white,
-            ),
-          ),
-          child: child!,
-        );
-      },
-    );
-
-    if (picked != null && picked != _selectedBirthday) {
-      setState(() {
-        _selectedBirthday = picked;
-      });
-    }
-  }
-
-  void _showImageSourceDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Select Profile Picture'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                leading: const Icon(
-                  Icons.photo_library,
-                  color: Colors.blueAccent,
-                ),
-                title: const Text('Gallery'),
-                onTap: () {
-                  Navigator.pop(context);
-                  _pickImage();
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.camera_alt, color: Colors.blueAccent),
-                title: const Text('Camera'),
-                onTap: () {
-                  Navigator.pop(context);
-                  _takePicture();
-                },
-              ),
-              if (_selectedImage != null ||
-                  (Provider.of<ProfileProvider>(
-                        context,
-                        listen: false,
-                      ).profile?.profilePicturePath !=
-                      null))
-                ListTile(
-                  leading: const Icon(Icons.delete, color: Colors.red),
-                  title: const Text('Remove Picture'),
-                  onTap: () {
-                    Navigator.pop(context);
-                    setState(() {
-                      _selectedImage = null;
-                    });
-                  },
-                ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  void _showErrorDialog(String message) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Error'),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  String _calculateAge(DateTime birthday) {
-    final now = DateTime.now();
-    int age = now.year - birthday.year;
-    if (now.month < birthday.month ||
-        (now.month == birthday.month && now.day < birthday.day)) {
-      age--;
-    }
-    return age.toString();
-  }
-
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<ProfileProvider>(context);
@@ -179,254 +25,311 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         foregroundColor: Colors.white,
         elevation: 0,
       ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Colors.blueAccent.withOpacity(0.1), Colors.white],
-          ),
-        ),
-        child: SafeArea(
-          child: Form(
-            key: provider.formKey,
-            child: ListView(
-              padding: const EdgeInsets.all(20),
-              children: [
-                // Profile Picture Section
-                Center(
-                  child: Column(
+      body: SafeArea(
+        child: Form(
+          key: provider.formKey,
+          child: ListView(
+            padding: const EdgeInsets.all(20),
+            children: [
+              if (provider.errorMessage != null)
+                Container(
+                  margin: const EdgeInsets.only(bottom: 16),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.red[50],
+                    border: Border.all(color: Colors.red[200]!),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
                     children: [
-                      Stack(
-                        children: [
-                          Container(
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: Colors.blueAccent,
-                                width: 3,
-                              ),
-                            ),
-                            child: CircleAvatar(
-                              radius: 60,
-                              backgroundImage: _selectedImage != null
-                                  ? FileImage(_selectedImage!)
-                                  : (provider.profile?.profilePicturePath !=
-                                            null
-                                        ? NetworkImage(
-                                            provider
-                                                .profile!
-                                                .profilePicturePath!,
-                                          )
-                                        : null),
-                              child:
-                                  _selectedImage == null &&
-                                      provider.profile?.profilePicturePath ==
-                                          null
-                                  ? const Icon(
-                                      Icons.person,
-                                      size: 60,
-                                      color: Colors.blueGrey,
-                                    )
-                                  : null,
-                            ),
-                          ),
-                          Positioned(
-                            bottom: 0,
-                            right: 0,
-                            child: GestureDetector(
-                              onTap: _showImageSourceDialog,
-                              child: Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: const BoxDecoration(
-                                  color: Colors.blueAccent,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(
-                                  Icons.camera_alt,
-                                  color: Colors.white,
-                                  size: 20,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        "Tap camera icon to change photo",
-                        style: TextStyle(
-                          color: Colors.blueGrey[600],
-                          fontSize: 12,
+                      Icon(Icons.error_outline, color: Colors.red[600]),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          provider.errorMessage!,
+                          style: TextStyle(color: Colors.red[800]),
                         ),
                       ),
                     ],
                   ),
                 ),
 
-                const SizedBox(height: 30),
-
-                // Form Fields
-                _buildTextField(
-                  controller: provider.nameController,
-                  label: "Full Name",
-                  icon: Icons.person,
-                  validator: (val) =>
-                      val == null || val.isEmpty ? "Name is required" : null,
-                ),
-
-                const SizedBox(height: 16),
-
-                _buildTextField(
-                  controller: provider.professionController,
-                  label: "Profession",
-                  icon: Icons.work,
-                ),
-
-                const SizedBox(height: 16),
-
-                // Birthday Field
-                GestureDetector(
-                  onTap: _selectBirthday,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
+              Center(
+                child: Stack(
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.blueAccent, width: 3),
+                      ),
+                      child: CircleAvatar(
+                        radius: 60,
+                        backgroundImage: provider.selectedImageFile != null
+                            ? FileImage(provider.selectedImageFile!)
+                            : provider.profile?.profilePicturePath != null
+                            ? NetworkImage(
+                                provider.profile!.profilePicturePath!,
+                              )
+                            : null,
+                        child: provider.profile?.profilePicturePath == null
+                            ? const Icon(
+                                Icons.person,
+                                size: 60,
+                                color: Colors.blueGrey,
+                              )
+                            : null,
+                      ),
                     ),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.blueAccent),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.cake, color: Colors.blueAccent),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Birthday",
-                                style: TextStyle(
-                                  color: Colors.blueGrey[600],
-                                  fontSize: 12,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                _selectedBirthday != null
-                                    ? "${DateFormat('dd MMMM yyyy').format(_selectedBirthday!)} (${_calculateAge(_selectedBirthday!)} years old)"
-                                    : "Select your birthday",
-                                style: TextStyle(
-                                  color: _selectedBirthday != null
-                                      ? Colors.black87
-                                      : Colors.grey[500],
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Icon(
-                          Icons.calendar_today,
-                          color: Colors.blueGrey[400],
-                          size: 20,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 16),
-
-                _buildTextField(
-                  controller: provider.phoneController,
-                  label: "Phone Number",
-                  icon: Icons.phone,
-                  keyboardType: TextInputType.phone,
-                ),
-
-                const SizedBox(height: 16),
-
-                _buildTextField(
-                  controller: provider.addressController,
-                  label: "Address",
-                  icon: Icons.location_on,
-                  maxLines: 2,
-                ),
-
-                const SizedBox(height: 16),
-
-                _buildTextField(
-                  controller: provider.bioController,
-                  label: "About Me",
-                  icon: Icons.info,
-                  maxLines: 4,
-                  hint: "Tell us about yourself...",
-                ),
-
-                const SizedBox(height: 30),
-
-                // Save Button
-                provider.isLoading
-                    ? const Center(
-                        child: CircularProgressIndicator(
-                          color: Colors.blueAccent,
-                        ),
-                      )
-                    : Container(
-                        width: double.infinity,
-                        height: 50,
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: Container(
                         decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Colors.blueAccent, Colors.blue],
-                          ),
-                          borderRadius: BorderRadius.circular(25),
-                        ),
-                        child: ElevatedButton(
-                          onPressed: () async {
-                            if (provider.formKey.currentState!.validate()) {
-                              try {
-                                await provider.updateProfile();
-                                if (context.mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text(
-                                        'Profile updated successfully!',
-                                      ),
-                                      backgroundColor: Colors.green,
-                                    ),
-                                  );
-                                  Navigator.pop(context);
-                                }
-                              } catch (e) {
-                                _showErrorDialog(
-                                  'Failed to update profile: $e',
-                                );
-                              }
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.transparent,
-                            shadowColor: Colors.transparent,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(25),
+                          color: Colors.blueAccent,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black26,
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
                             ),
-                          ),
-                          child: const Text(
-                            "Save Changes",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                          ],
+                        ),
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(20),
+                            onTap: provider.isUploadingPhoto
+                                ? null
+                                : () async {
+                                    try {
+                                      await provider.pickImage();
+                                    } catch (e) {
+                                      if (mounted) {
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              'Failed to upload photo: $e',
+                                            ),
+                                            backgroundColor: Colors.red,
+                                          ),
+                                        );
+                                      }
+                                    }
+                                  },
+                            child: Container(
+                              padding: const EdgeInsets.all(8),
+                              child: provider.isUploadingPhoto
+                                  ? const SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        color: Colors.white,
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  : const Icon(
+                                      Icons.camera_alt,
+                                      color: Colors.white,
+                                      size: 20,
+                                    ),
                             ),
                           ),
                         ),
                       ),
+                    ),
+                  ],
+                ),
+              ),
 
-                const SizedBox(height: 20),
-              ],
-            ),
+              const SizedBox(height: 30),
+
+              _buildTextField(
+                controller: provider.nameController,
+                label: "Full Name",
+                icon: Icons.person,
+                validator: (val) =>
+                    val == null || val.isEmpty ? "Name is required" : null,
+              ),
+
+              const SizedBox(height: 16),
+
+              _buildTextField(
+                controller: provider.professionController,
+                label: "Profession",
+                icon: Icons.work,
+              ),
+
+              const SizedBox(height: 16),
+
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Material(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(12),
+                    onTap: () async => provider.pickDate(context),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.blueGrey[300]!),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.cake, color: Colors.blueAccent),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Birthday",
+                                  style: TextStyle(
+                                    color: Colors.blueGrey[600],
+                                    fontSize: 12,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  provider.profile?.birthday != null
+                                      ? DateFormat(
+                                          'dd MMMM yyyy',
+                                        ).format(provider.profile!.birthday!)
+                                      : "Select your birthday",
+                                  style: TextStyle(
+                                    color: provider.profile?.birthday != null
+                                        ? Colors.black87
+                                        : Colors.grey[500],
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Icon(
+                            Icons.calendar_today,
+                            color: Colors.blueGrey[400],
+                            size: 20,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
+              _buildTextField(
+                controller: provider.phoneController,
+                label: "Phone Number",
+                icon: Icons.phone,
+                keyboardType: TextInputType.phone,
+              ),
+
+              const SizedBox(height: 16),
+
+              _buildTextField(
+                controller: provider.addressController,
+                label: "Address",
+                icon: Icons.location_on,
+                maxLines: 2,
+              ),
+
+              const SizedBox(height: 16),
+
+              _buildTextField(
+                controller: provider.bioController,
+                label: "About Me",
+                icon: Icons.info,
+                maxLines: 4,
+                hint: "Your bio...",
+              ),
+
+              const SizedBox(height: 30),
+
+              provider.isLoading
+                  ? const Center(
+                      child: CircularProgressIndicator(
+                        color: Colors.blueAccent,
+                      ),
+                    )
+                  : Container(
+                      width: double.infinity,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Colors.blueAccent, Colors.blue],
+                        ),
+                        borderRadius: BorderRadius.circular(25),
+                      ),
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          if (provider.formKey.currentState!.validate()) {
+                            try {
+                              await provider.updateProfile();
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      'Profile updated successfully!',
+                                    ),
+                                    backgroundColor: Colors.green,
+                                  ),
+                                );
+                                Navigator.pop(context);
+                              }
+                            } catch (e) {
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'Failed to update profile: $e',
+                                    ),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
+                              print("Failed to update profile: $e");
+                            }
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.transparent,
+                          shadowColor: Colors.transparent,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(25),
+                          ),
+                        ),
+                        child: const Text(
+                          "Save Changes",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+
+              const SizedBox(height: 20),
+            ],
           ),
         ),
       ),

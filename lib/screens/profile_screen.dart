@@ -3,10 +3,26 @@ import 'package:my_portofolio_app/providers/profile_provider.dart';
 import 'package:my_portofolio_app/screens/edit_profile_screen.dart';
 import 'package:provider/provider.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
+  const ProfileScreen({Key? key}) : super(key: key);
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<ProfileProvider>(context);
+    final args =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    final String? uid = args?['uid'];
+
+    if (uid != null) {
+      provider.setProfile(
+        provider.allProfiles.firstWhere((profile) => profile.uid == uid),
+      );
+    }
 
     if (provider.isLoading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
@@ -20,6 +36,16 @@ class ProfileScreen extends StatelessWidget {
 
     final profile = provider.profile!;
     return Scaffold(
+      appBar: uid == null
+          ? null
+          : AppBar(
+              title: Text(
+                "${profile.name}'s Profile",
+                style: const TextStyle(color: Colors.white),
+              ),
+              backgroundColor: Colors.blueAccent,
+              leading: backButton(),
+            ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
@@ -32,18 +58,20 @@ class ProfileScreen extends StatelessWidget {
           ),
         ),
       ),
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: FloatingActionButton(
-          onPressed: () {
-            Navigator.push(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          if (uid != null) {
+            Navigator.pushNamed(
               context,
-              MaterialPageRoute(builder: (_) => const EditProfileScreen()),
+              '/editProfile',
+              arguments: {'uid': uid},
             );
-          },
-          child: const Icon(Icons.edit, color: Colors.white),
-          backgroundColor: Colors.blueAccent,
-        ),
+          } else {
+            Navigator.pushNamed(context, '/editProfile');
+          }
+        },
+        child: const Icon(Icons.edit, color: Colors.white),
+        backgroundColor: Colors.blueAccent,
       ),
     );
   }
@@ -210,6 +238,15 @@ class ProfileScreen extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget backButton() {
+    return IconButton(
+      icon: const Icon(Icons.arrow_back, color: Colors.white),
+      onPressed: () {
+        Navigator.pop(context);
+      },
     );
   }
 }

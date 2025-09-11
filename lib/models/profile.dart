@@ -25,6 +25,31 @@ class Profile {
     this.birthday,
   });
 
+  Profile copyWith({
+    String? name,
+    String? email,
+    String? role,
+    String? phone,
+    String? address,
+    String? profession,
+    String? bio,
+    String? profilePicturePath,
+    DateTime? birthday,
+  }) {
+    return Profile(
+      uid: uid,
+      name: name ?? this.name,
+      email: email ?? this.email,
+      role: role ?? this.role,
+      phone: phone ?? this.phone,
+      address: address ?? this.address,
+      profession: profession ?? this.profession,
+      bio: bio ?? this.bio,
+      profilePicturePath: profilePicturePath ?? this.profilePicturePath,
+      birthday: birthday ?? this.birthday,
+    );
+  }
+
   Map<String, dynamic> toMap() {
     return {
       'uid': uid,
@@ -50,7 +75,9 @@ class Profile {
       address: map['address'],
       bio: map['bio'],
       profilePicturePath: map['profilePicturePath'],
-      birthday: map['birthday'] != null ? (map['birthday'] as Timestamp).toDate() : null,
+      birthday: map['birthday'] != null
+          ? (map['birthday'] as Timestamp).toDate()
+          : null,
       role: map['role'] ?? 'member',
     );
   }
