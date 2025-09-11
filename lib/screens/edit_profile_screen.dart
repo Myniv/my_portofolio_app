@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:my_portofolio_app/providers/auth_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../providers/profile_provider.dart';
@@ -13,10 +14,67 @@ class EditProfileScreen extends StatefulWidget {
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
+  bool _isInitialized = false;
+  String? _currentUid;
+  String? _originalUid;
+
   @override
+  void initState() {
+    super.initState();
+    _loadUid();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    if (!_isInitialized) {
+      final args =
+          ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+      final String? uid = args?['uid'];
+
+      if (uid != null) {
+        _currentUid = uid;
+        context.read<ProfileProvider>().loadProfile(uid);
+      }
+
+      _isInitialized = true;
+    }
+  }
+
+  void _loadUid() async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final uid = await authProvider.loadUserUID();
+    if (uid != null) {
+      setState(() {
+        _originalUid = uid;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<ProfileProvider>(context);
+
+    if (provider.isLoading && provider.profile == null) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text("Edit Profile"),
+          backgroundColor: Colors.blueAccent,
+          foregroundColor: Colors.white,
+          elevation: 0,
+        ),
+        body: const Center(
+          child: CircularProgressIndicator(color: Colors.blueAccent),
+        ),
+      );
+    }
+
+    if (provider.profile == null) {
+      return const Scaffold(
+        body: Center(child: Text("No profile data found.")),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -293,6 +351,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                     backgroundColor: Colors.green,
                                   ),
                                 );
+
+                                if (_currentUid != null &&
+                                    _originalUid != null &&
+                                    _currentUid != _originalUid) {
+                                  provider.setProfile(
+                                    provider.allProfiles.firstWhere(
+                                      (profile) => profile.uid == _originalUid,
+                                    ),
+                                  );
+                                  await provider.loadProfile(_originalUid!);
+                                  await provider.loadAllProfiles();
+                                }
+
                                 Navigator.pop(context);
                               }
                             } catch (e) {

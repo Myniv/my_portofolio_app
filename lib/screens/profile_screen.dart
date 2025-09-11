@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:my_portofolio_app/providers/profile_provider.dart';
 import 'package:my_portofolio_app/screens/edit_profile_screen.dart';
 import 'package:provider/provider.dart';
@@ -59,6 +60,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: "profile_fab",
         onPressed: () {
           if (uid != null) {
             Navigator.pushNamed(
@@ -92,10 +94,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
           children: [
             CircleAvatar(
               radius: 50,
-              backgroundImage: profile.profilePicturePath != null
+              backgroundImage:
+                  profile.profilePicturePath != null &&
+                      profile.profilePicturePath.isNotEmpty
                   ? NetworkImage(profile.profilePicturePath!)
                   : null,
-              child: profile.profilePicturePath == null
+              child:
+                  profile.profilePicturePath == null ||
+                      profile.profilePicturePath!.isEmpty
                   ? const Icon(Icons.person, size: 50)
                   : null,
             ),
@@ -144,6 +150,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Icons.location_on,
             profile.address ?? "No Data",
             "Address",
+          ),
+          buildInfoBox(
+            Icons.cake,
+            DateFormat('dd MMMM yyyy').format(profile.birthday!),
+            "Birthday",
           ),
         ],
       ),

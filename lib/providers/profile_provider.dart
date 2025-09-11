@@ -60,6 +60,7 @@ class ProfileProvider extends ChangeNotifier {
     _setLoading(true);
     try {
       _profile = await _profileService.getUserProfile(uid);
+      print("Profile loaded: $_profile");
 
       if (_profile != null) {
         nameController.text = _profile!.name;
