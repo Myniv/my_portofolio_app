@@ -10,13 +10,39 @@ class AuthProvider extends ChangeNotifier {
   User? _user;
   String? _errorMessage;
   bool _isLoading = false;
+  bool _isInitialized = false;
 
   User? get user => _user;
   String? get errorMessage => _errorMessage;
   bool get isLoading => _isLoading;
+  bool get isInitialized => _isInitialized;
+
+  AuthProvider() {
+    _initializeAuthState();
+  }
+
+  void _initializeAuthState() {
+    FirebaseAuth.instance.authStateChanges().listen((User? user) async {
+      _user = user;
+      _isInitialized = true;
+
+      if (user != null) {
+        await saveUserUID(user.uid);
+      } else {
+        await clearAllPreferences();
+      }
+
+      notifyListeners();
+    });
+  }
 
   void _setLoading(bool value) {
     _isLoading = value;
+    notifyListeners();
+  }
+
+  void clearError() {
+    _errorMessage = null;
     notifyListeners();
   }
 
@@ -26,20 +52,20 @@ class AuthProvider extends ChangeNotifier {
     ProfileProvider profileProvider,
   ) async {
     _setLoading(true);
-    try {
-      _user = await _authService.signInWithEmail(email, password);
+    _errorMessage = null;
 
-      if (_user != null) {
-        saveUserUID(_user!.uid);
-        await profileProvider.loadProfile(_user!.uid);
-        _user = user;
-        print("User in auth provider: $_user");
+    try {
+      final user = await _authService.signInWithEmail(email, password);
+
+      if (user != null) {
+        await saveUserUID(user.uid);
+        await profileProvider.loadProfile(user.uid);
+        print("User signed in: ${user.uid}");
+        return true;
       }
-      _errorMessage = null;
-      notifyListeners();
-      return true;
+      return false;
     } catch (e) {
-      _errorMessage = e.toString();
+      _errorMessage = e.toString().replaceAll('Exception: ', '');
       notifyListeners();
       return false;
     } finally {
@@ -53,15 +79,19 @@ class AuthProvider extends ChangeNotifier {
     ProfileProvider profileProvider,
   ) async {
     _setLoading(true);
-    try {
-      _user = await _authService.registerWithEmail(email, password);
-      _errorMessage = null;
+    _errorMessage = null;
 
-      await profileProvider.loadProfile(user!.uid);
-      notifyListeners();
-      return true;
+    try {
+      final user = await _authService.registerWithEmail(email, password);
+
+      if (user != null) {
+        await signOut();
+        print("User registered successfully: ${user.uid}");
+        return true;
+      }
+      return false;
     } catch (e) {
-      _errorMessage = e.toString();
+      _errorMessage = e.toString().replaceAll('Exception: ', '');
       notifyListeners();
       return false;
     } finally {
@@ -71,19 +101,18 @@ class AuthProvider extends ChangeNotifier {
 
   Future<bool> signInWithGoogle(ProfileProvider profileProvider) async {
     _setLoading(true);
-    try {
-      _user = await _authService.signInWithGoogle();
-      print("User in auth provider: $_user");
+    _errorMessage = null;
 
-      if (_user != null) {
-        saveUserUID(_user!.uid);
-        await profileProvider.loadProfile(_user!.uid);
-        _user = user;
-        print("User in auth provider: $_user");
+    try {
+      final user = await _authService.signInWithGoogle();
+
+      if (user != null) {
+        await saveUserUID(user.uid);
+        await profileProvider.loadProfile(user.uid);
+        print("User signed in with Google: ${user.uid}");
+        return true;
       }
-      _errorMessage = null;
-      notifyListeners();
-      return _user != null;
+      return false;
     } catch (e) {
       _errorMessage = e.toString();
       notifyListeners();
@@ -94,10 +123,13 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<void> signOut() async {
-    await _authService.signOut();
-    _user = null;
-    clearAllPreferences();
-    notifyListeners();
+    try {
+      await _authService.signOut();
+      notifyListeners();
+    } catch (e) {
+      _errorMessage = "Failed to sign out: $e";
+      notifyListeners();
+    }
   }
 
   Future<void> saveUserUID(String uid) async {
@@ -105,7 +137,7 @@ class AuthProvider extends ChangeNotifier {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('uid', uid);
     } catch (e) {
-      throw Exception('Failed to save user UID: $e');
+      print('Failed to save user UID: $e');
     }
   }
 
@@ -114,12 +146,17 @@ class AuthProvider extends ChangeNotifier {
       final prefs = await SharedPreferences.getInstance();
       return prefs.getString('uid');
     } catch (e) {
-      throw Exception('Failed to get user UID: $e');
+      print('Failed to get user UID: $e');
+      return null;
     }
   }
 
-  clearAllPreferences() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
+  Future<void> clearAllPreferences() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.clear();
+    } catch (e) {
+      print('Failed to clear preferences: $e');
+    }
   }
 }

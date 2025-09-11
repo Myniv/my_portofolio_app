@@ -16,10 +16,8 @@ class AuthService {
       );
 
       print("User in auth service: ${credential.user}");
-      // print("Credentials : ${credential.user}");
       return credential.user;
     } on FirebaseAuthException catch (e) {
-      // print("error : ${e.message}");
       throw Exception(e.message) ?? "Login failed";
     }
   }
@@ -40,6 +38,9 @@ class AuthService {
           role: "member",
         );
         await _profileService.createUserProfile(profile);
+
+        await _auth.signOut();
+        await Future.delayed(const Duration(milliseconds: 100));
       }
       return credential.user;
     } on FirebaseAuthException catch (e) {
@@ -80,12 +81,6 @@ class AuthService {
       }
 
       print("User in auth service: $exists");
-
-      // if (user != null) {
-      //   await user.updatePhotoURL(googleUser.photoUrl);
-      //   await user.updateDisplayName(googleUser.displayName);
-      //   await user.reload();
-      // }
 
       return userCredential.user;
     } catch (e) {

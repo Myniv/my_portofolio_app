@@ -88,6 +88,28 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     value!.length < 6 ? "Password must be 6+ chars" : null,
               ),
               const SizedBox(height: 20),
+              if (authProvider.errorMessage != null)
+                Container(
+                  margin: const EdgeInsets.only(bottom: 16),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.red[50],
+                    border: Border.all(color: Colors.red[200]!),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.error_outline, color: Colors.red[600]),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          authProvider.errorMessage!,
+                          style: TextStyle(color: Colors.red[800]),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
 
               SizedBox(
                 width: double.infinity,
@@ -96,6 +118,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     backgroundColor: Colors.blue.shade800,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
+
                   onPressed: _isLoading
                       ? null
                       : () async {
@@ -109,30 +132,49 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     profileProvider,
                                   );
 
-                              if (success && profileProvider.profile != null) {
-                                // if (profileProvider.profile!.role == "admin") {
-                                //   //TODO CHANGE Admin Dashboard
-                                //   Navigator.pushReplacementNamed(
-                                //     context,
-                                //     AppRoutes.about,
-                                //   );
-                                // } else {
-                                //   Navigator.pushReplacementNamed(
-                                //     context,
-                                //     AppRoutes.home,
-                                //   );
-                                // }
+                              if (success && mounted) {
+                                // Show success message
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      "Registration successful! Please login with your credentials.",
+                                    ),
+                                    backgroundColor: Colors.green,
+                                  ),
+                                );
+
+                                // Navigate to login screen
+                                Navigator.pushReplacementNamed(
+                                  context,
+                                  AppRoutes.login,
+                                );
+                              } else if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      authProvider.errorMessage ??
+                                          "Registration failed",
+                                    ),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
                               }
                             } catch (e) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text("Register failed: $e")),
-                              );
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text("Register failed: $e"),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
                             } finally {
-                              setState(() => _isLoading = false);
+                              if (mounted) {
+                                setState(() => _isLoading = false);
+                              }
                             }
                           }
                         },
-
                   child: _isLoading
                       ? const CircularProgressIndicator(color: Colors.white)
                       : const Text(

@@ -63,49 +63,77 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
 
+              if (authProvider.errorMessage != null)
+                Container(
+                  margin: const EdgeInsets.only(bottom: 16),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.red[50],
+                    border: Border.all(color: Colors.red[200]!),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.error_outline, color: Colors.red[600]),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          authProvider.errorMessage!,
+                          style: TextStyle(color: Colors.red[800]),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               const SizedBox(height: 20),
 
               SizedBox(
                 width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue[800],
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                  ),
-                  onPressed: () async {
-                    final email = _emailController.text.trim();
-                    final password = _passwordController.text.trim();
-                    final success = await authProvider.signInWithEmail(
-                      email,
-                      password,
-                      profileProvider,
-                    );
-
-                    if (success && profileProvider.profile != null && mounted) {
-                      // if (profileProvider.profile!.role == "admin") {
-                      //   //TODO change to admin dashboard
-                      //   Navigator.pushReplacementNamed(
-                      //     context,
-                      //     AppRoutes.about,
-                      //   );
-                      // } else {
-                      //   Navigator.pushReplacementNamed(context, AppRoutes.home);
-                      // }
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            authProvider.errorMessage ?? "Login failed",
-                          ),
+                child: authProvider.isLoading
+                    ? const Center(
+                        child: CircularProgressIndicator(
+                          color: Colors.blueAccent,
                         ),
-                      );
-                    }
-                  },
-                  child: const Text(
-                    "Login dengan Email",
-                    style: TextStyle(fontSize: 16, color: Colors.white),
-                  ),
-                ),
+                      )
+                    : ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue[800],
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                        ),
+
+                        onPressed: () async {
+                          final email = _emailController.text.trim();
+                          final password = _passwordController.text.trim();
+
+                          if (email.isEmpty || password.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  "Please enter both email and password",
+                                ),
+                                backgroundColor: Colors.orange,
+                              ),
+                            );
+                            return;
+                          }
+
+                          final success = await authProvider.signInWithEmail(
+                            email,
+                            password,
+                            profileProvider,
+                          );
+
+                          if (success && mounted) {
+                            //AuthWrapper auto redirect
+                          } else if (mounted) {
+                           
+                          }
+                        },
+                        child: const Text(
+                          "Login dengan Email",
+                          style: TextStyle(fontSize: 16, color: Colors.white),
+                        ),
+                      ),
               ),
 
               const SizedBox(height: 12),
@@ -122,16 +150,20 @@ class _LoginScreenState extends State<LoginScreen> {
                     style: TextStyle(color: Colors.black87, fontSize: 16),
                   ),
                   onPressed: () async {
-                    final success = await authProvider.signInWithGoogle(profileProvider);
+                    final success = await authProvider.signInWithGoogle(
+                      profileProvider,
+                    );
+
                     if (success && mounted) {
-                      Navigator.pushReplacementNamed(context, AppRoutes.home);
-                    } else {
+                      //AuthWrapper auto redirect
+                    } else if (mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(
                             authProvider.errorMessage ??
                                 "Google Sign-In failed",
                           ),
+                          backgroundColor: Colors.red,
                         ),
                       );
                     }
