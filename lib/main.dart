@@ -1,9 +1,11 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:my_portofolio_app/providers/auth_provider.dart';
 import 'package:my_portofolio_app/providers/profile_provider.dart';
 import 'package:my_portofolio_app/providers/project_provider.dart';
 import 'package:my_portofolio_app/routes.dart';
+import 'package:my_portofolio_app/screens/admin/profile_list_screen.dart';
 import 'package:my_portofolio_app/screens/auth_wrapper.dart';
 import 'package:my_portofolio_app/screens/dashboard_screen.dart';
 import 'package:my_portofolio_app/screens/login_screen.dart';
@@ -25,6 +27,12 @@ void main() async {
       appId: '1:52876912540:android:60d51f7be16e9547b2ca59',
     ), // App ID
   );
+  await Supabase.initialize(
+    url: 'https://ltvskbkhdfgvkveqaxpg.supabase.co',
+    anonKey:
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0dnNrYmtoZGZndmt2ZXFheHBnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc1MjU3NjUsImV4cCI6MjA3MzEwMTc2NX0.i2YH6LvyAwkreZ11f-NbUkQBq7oQ5xuKHqe9sIEWhGE',
+  );
+
   runApp(
     MultiProvider(
       providers: [
@@ -72,13 +80,22 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     final profileProvider = Provider.of<ProfileProvider>(context);
 
-    final List<Widget> _screens = [
-      profileProvider.profile?.role == "admin"
-          ? DashboardScreen()
-          : HomeScreen(),
+    final List<Widget> _screensAdmin = [
+      DashboardScreen(),
+      ProfileListScreen(),
+      PortofolioScreen(),
+    ];
+
+    final List<Widget> _screensMember = [
+      HomeScreen(),
       ProfileScreen(),
       PortofolioScreen(),
     ];
+
+    late final List<Widget> _screens = profileProvider.profile?.role == "admin"
+        ? _screensAdmin
+        : _screensMember;
+
     return Scaffold(
       appBar: CustomAppbar(title: _titleScreen[_currentIndex]),
       body: _screens[_currentIndex],
