@@ -73,18 +73,7 @@ class ProfileService {
       final ext = path.extension(file.path);
       final fileName = "${uid}_$timeStamp$ext";
 
-      final bucket = _supabase.storage.from('profile_photos');
-
-      final existingFiles = await bucket.list(
-        path: '',
-        searchOptions: SearchOptions(search: oldUrl),
-      );
-
-      if (existingFiles.isNotEmpty) {
-        await bucket.remove([oldUrl]);
-        print(oldUrl);
-        print("Deleted old profile photo: $oldUrl");
-      }
+      await deleteOldProfilePhoto(oldUrl);
 
       await _supabase.storage
           .from('profile_photos')
@@ -100,6 +89,23 @@ class ProfileService {
     } catch (e) {
       print("Error in uploadProfilePhoto: $e");
       rethrow;
+    }
+  }
+
+  Future<void> deleteOldProfilePhoto(String oldUrl) async {
+    try {
+      if (oldUrl.isEmpty) return;
+
+      final uri = Uri.parse(oldUrl);
+      final pathSegments = uri.pathSegments;
+
+      if (pathSegments.length >= 2) {
+        final fileName = pathSegments.last;
+        await _supabase.storage.from('profile_photos').remove([fileName]);
+        print("Deleted old profile photo: $fileName");
+      }
+    } catch (e) {
+      print("Error deleting old profile photo: $e");
     }
   }
 }
