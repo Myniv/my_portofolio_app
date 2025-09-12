@@ -17,6 +17,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   bool _isInitialized = false;
   String? _currentUid;
   String? _originalUid;
+  bool _isEditingProfile2 = false;
 
   @override
   void initState() {
@@ -29,16 +30,63 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     super.didChangeDependencies();
 
     if (!_isInitialized) {
+      final profileProvider = Provider.of<ProfileProvider>(
+        context,
+        listen: false,
+      );
       final args =
           ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+
       final String? uid = args?['uid'];
 
       if (uid != null) {
         _currentUid = uid;
-        context.read<ProfileProvider>().loadProfile(uid);
+        _isEditingProfile2 = true;
+
+        profileProvider.setEditingState(true);
+
+        print("EditProfileScreen: Editing profile2 for UID: $uid");
+
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _loadProfileData(profileProvider, uid);
+        });
+      } else {
+        _isEditingProfile2 = false;
+
+        profileProvider.setEditingState(false);
+
+        print("EditProfileScreen: Editing current user profile");
+        _populateFormFields(profileProvider.profile, profileProvider);
       }
 
       _isInitialized = true;
+    }
+  }
+
+  void _loadProfileData(ProfileProvider profileProvider, String uid) {
+    var targetProfile = profileProvider.profile2;
+
+    if (targetProfile == null || targetProfile.uid != uid) {
+      try {
+        targetProfile = profileProvider.allProfiles.firstWhere(
+          (profile) => profile.uid == uid,
+        );
+        profileProvider.setProfile2(targetProfile);
+      } catch (e) {
+        print("Profile not found in allProfiles for UID: $uid");
+        return;
+      }
+    }
+    _populateFormFields(targetProfile, profileProvider);
+  }
+
+  void _populateFormFields(dynamic profile, ProfileProvider profileProvider) {
+    if (profile != null) {
+      profileProvider.nameController.text = profile.name ?? '';
+      profileProvider.professionController.text = profile.profession ?? '';
+      profileProvider.phoneController.text = profile.phone ?? '';
+      profileProvider.addressController.text = profile.address ?? '';
+      profileProvider.bioController.text = profile.bio ?? '';
     }
   }
 
@@ -52,14 +100,25 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
+  dynamic _getCurrentProfile(ProfileProvider profileProvider) {
+    return _isEditingProfile2
+        ? profileProvider.profile2
+        : profileProvider.profile;
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<ProfileProvider>(context);
+    final currentProfile = _getCurrentProfile(provider);
 
-    if (provider.isLoading && provider.profile == null) {
+    if (provider.isLoading && currentProfile == null) {
       return Scaffold(
         appBar: AppBar(
-          title: const Text("Edit Profile"),
+          title: Text(
+            _isEditingProfile2
+                ? "Edit ${currentProfile?.name ?? 'Profile'}"
+                : "Edit Profile",
+          ),
           backgroundColor: Colors.blueAccent,
           foregroundColor: Colors.white,
           elevation: 0,
@@ -70,7 +129,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       );
     }
 
-    if (provider.profile == null) {
+    if (currentProfile == null) {
       return const Scaffold(
         body: Center(child: Text("No profile data found.")),
       );
@@ -78,7 +137,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Edit Profile"),
+        title: Text(
+          _isEditingProfile2
+              ? "Edit ${currentProfile.name ?? 'Profile'}"
+              : "Edit Profile",
+        ),
         backgroundColor: Colors.blueAccent,
         foregroundColor: Colors.white,
         elevation: 0,
@@ -124,12 +187,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         radius: 60,
                         backgroundImage: provider.selectedImageFile != null
                             ? FileImage(provider.selectedImageFile!)
-                            : provider.profile?.profilePicturePath != null
-                            ? NetworkImage(
-                                provider.profile!.profilePicturePath!,
-                              )
+                            : currentProfile.profilePicturePath != null
+                            ? NetworkImage(currentProfile.profilePicturePath!)
                             : null,
-                        child: provider.profile?.profilePicturePath == null
+                        child: currentProfile.profilePicturePath == null
                             ? const Icon(
                                 Icons.person,
                                 size: 60,
@@ -265,13 +326,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  provider.profile?.birthday != null
+                                  currentProfile.birthday != null
                                       ? DateFormat(
                                           'dd MMMM yyyy',
-                                        ).format(provider.profile!.birthday!)
+                                        ).format(currentProfile.birthday!)
                                       : "Select your birthday",
                                   style: TextStyle(
-                                    color: provider.profile?.birthday != null
+                                    color: currentProfile.birthday != null
                                         ? Colors.black87
                                         : Colors.grey[500],
                                     fontSize: 16,
@@ -341,7 +402,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         onPressed: () async {
                           if (provider.formKey.currentState!.validate()) {
                             try {
-                              await provider.updateProfile();
+                              // Use appropriate update method based on editing state
+                              if (_isEditingProfile2) {
+                                await provider.updateProfile2();
+                              } else {
+                                await provider.updateProfile();
+                              }
+
                               if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
@@ -352,16 +419,28 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                   ),
                                 );
 
+                                // Handle navigation and state updates
                                 if (_currentUid != null &&
                                     _originalUid != null &&
                                     _currentUid != _originalUid) {
+                                  // If editing someone else's profile, reload all profiles
+                                  await provider.loadAllProfiles();
+                                  // Set back to original user's profile
                                   provider.setProfile(
                                     provider.allProfiles.firstWhere(
                                       (profile) => profile.uid == _originalUid,
                                     ),
                                   );
                                   await provider.loadProfile(_originalUid!);
+                                } else if (_isEditingProfile2) {
+                                  // If editing profile2, reload all profiles
                                   await provider.loadAllProfiles();
+                                } else {
+                                  // If editing own profile, reload current profile
+                                  final currentUid = provider.profile?.uid;
+                                  if (currentUid != null) {
+                                    await provider.loadProfile(currentUid);
+                                  }
                                 }
 
                                 Navigator.pop(context);

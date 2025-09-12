@@ -12,6 +12,46 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  bool _isInitialized = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    if (!_isInitialized) {
+      final args =
+          ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+      final String? uid = args?['uid'];
+
+      if (uid != null) {
+        print("Loading profile for UID: $uid");
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          final profileProvider = context.read<ProfileProvider>();
+          try {
+            final selectedProfile = profileProvider.allProfiles.firstWhere(
+              (profile) => profile.uid == uid,
+            );
+            profileProvider.setProfile2(selectedProfile);
+            print("Profile loaded: ${selectedProfile.name}");
+          } catch (e) {
+            print("Profile not found for UID: $uid");
+          }
+        });
+      } else {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          final profileProvider = context.read<ProfileProvider>();
+          try {
+            profileProvider.setProfile(profileProvider.profile!);
+            print("Profile loaded: ${profileProvider.profile?.name}");
+          } catch (e) {
+            print("Profile not found for UID: $uid");
+          }
+        });
+      }
+      _isInitialized = true;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<ProfileProvider>(context);
@@ -19,23 +59,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
     final String? uid = args?['uid'];
 
-    if (uid != null) {
-      provider.setProfile(
-        provider.allProfiles.firstWhere((profile) => profile.uid == uid),
-      );
-    }
+    print("Profile 2: ${provider.profile2?.name}");
+    print("Profile 1: ${provider.profile?.name}");
+
+    var profile = uid != null ? provider.profile2 : provider.profile;
 
     if (provider.isLoading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    if (provider.profile == null) {
+    if (profile == null) {
       return const Scaffold(
         body: Center(child: Text("No profile data found.")),
       );
     }
 
-    final profile = provider.profile!;
     return Scaffold(
       appBar: uid == null
           ? null
@@ -61,15 +99,36 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         heroTag: "profile_fab",
-        onPressed: () {
+        onPressed: () async {
           if (uid != null) {
-            Navigator.pushNamed(
+            await Navigator.pushNamed(
               context,
               '/editProfile',
               arguments: {'uid': uid},
             );
           } else {
-            Navigator.pushNamed(context, '/editProfile');
+            await Navigator.pushNamed(context, '/editProfile');
+          }
+
+          // Reload the profile data after editing
+          if (mounted) {
+            final profileProvider = context.read<ProfileProvider>();
+            if (uid != null) {
+              await profileProvider.loadAllProfiles();
+              try {
+                final updatedProfile = profileProvider.allProfiles.firstWhere(
+                  (profile) => profile.uid == uid,
+                );
+                profileProvider.setProfile2(updatedProfile);
+              } catch (e) {
+                print("Error finding updated profile: $e");
+              }
+            } else {
+              final currentUid = profileProvider.profile?.uid;
+              if (currentUid != null) {
+                await profileProvider.loadProfile(currentUid);
+              }
+            }
           }
         },
         child: const Icon(Icons.edit, color: Colors.white),

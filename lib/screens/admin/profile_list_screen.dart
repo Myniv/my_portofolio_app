@@ -36,7 +36,7 @@ class _ProfileListScreenState extends State<ProfileListScreen> {
               return Card(
                 margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: _listProfileView(
-                  cert.profilePicturePath ?? "assets/images/profile.png",
+                  cert.profilePicturePath ?? "",
                   cert.name,
                   cert.email,
                   cert.uid,
@@ -56,10 +56,14 @@ class _ProfileListScreenState extends State<ProfileListScreen> {
     String uid,
   ) {
     return ListTile(
+      focusColor: Colors.lightBlueAccent,
+      hoverColor: Colors.lightBlueAccent,
+      selectedColor: Colors.lightBlueAccent,
+
       leading: CircleAvatar(
-        backgroundImage: AssetImage(imagePath),
-        backgroundColor: Colors.lightBlueAccent,
-        foregroundColor: Colors.white,
+        backgroundImage: imagePath.isNotEmpty ? NetworkImage(imagePath) : null,
+
+        child: imagePath.isEmpty ? Icon(Icons.person) : null,
       ),
       title: Text(name),
       subtitle: Text(email),
