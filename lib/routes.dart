@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:my_portofolio_app/screens/about_screen.dart';
 import 'package:my_portofolio_app/screens/add_project_screen.dart';
+import 'package:my_portofolio_app/screens/custom_splash_screen.dart';
 import 'package:my_portofolio_app/screens/edit_profile_screen.dart';
 import 'package:my_portofolio_app/screens/home_screen.dart';
 import 'package:my_portofolio_app/screens/login_screen.dart';
@@ -21,6 +22,7 @@ class AppRoutes {
   static const about = '/about';
   static const register = '/register';
   static const login = '/login';
+  static const splash = '/splash';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -67,6 +69,11 @@ class AppRoutes {
       case login:
         return MaterialPageRoute(
           builder: (_) => LoginScreen(),
+          settings: settings,
+        );
+      case splash:
+        return MaterialPageRoute(
+          builder: (_) => CustomSplashScreen(),
           settings: settings,
         );
 

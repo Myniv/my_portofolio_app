@@ -20,11 +20,11 @@ import 'package:my_portofolio_app/screens/profile_screen.dart';
 import 'package:my_portofolio_app/widgets/custom_drawer.dart';
 
 void main() async {
-  // WidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized();
 
   //For using splash screen from pubspec.yaml (not custom splash screen)
-  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
-  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+  // WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  // FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
   await Firebase.initializeApp(
     options: FirebaseOptions(
@@ -52,8 +52,8 @@ void main() async {
   );
 
   //For using splash screen from pubspec.yaml (not custom splash screen)
-  await Future.delayed(const Duration(seconds: 2));
-  FlutterNativeSplash.remove();
+  // await Future.delayed(const Duration(seconds: 2));
+  // FlutterNativeSplash.remove();
 }
 
 class MainApp extends StatelessWidget {
@@ -66,8 +66,7 @@ class MainApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       home: AuthWrapper(),
       onGenerateRoute: AppRoutes.generateRoute,
-
-      // initialRoute: AppRoutes.splash,
+      initialRoute: AppRoutes.splash,
     );
   }
 }
