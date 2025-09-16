@@ -1,4 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:my_portofolio_app/screens/custom_splash_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:my_portofolio_app/providers/auth_provider.dart';
@@ -18,7 +20,12 @@ import 'package:my_portofolio_app/screens/profile_screen.dart';
 import 'package:my_portofolio_app/widgets/custom_drawer.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  // WidgetsFlutterBinding.ensureInitialized();
+
+  //For using splash screen from pubspec.yaml (not custom splash screen)
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+
   await Firebase.initializeApp(
     options: FirebaseOptions(
       projectId: 't-monument-471602-f3', // Project ID
@@ -43,6 +50,10 @@ void main() async {
       child: MainApp(),
     ),
   );
+
+  //For using splash screen from pubspec.yaml (not custom splash screen)
+  await Future.delayed(const Duration(seconds: 2));
+  FlutterNativeSplash.remove();
 }
 
 class MainApp extends StatelessWidget {
@@ -55,6 +66,8 @@ class MainApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       home: AuthWrapper(),
       onGenerateRoute: AppRoutes.generateRoute,
+
+      // initialRoute: AppRoutes.splash,
     );
   }
 }
