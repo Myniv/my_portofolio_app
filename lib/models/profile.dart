@@ -11,6 +11,8 @@ class Profile {
   String? profilePicturePath;
   String role;
   DateTime? birthday;
+  String? github;
+  String? linkedin;
 
   Profile({
     required this.uid,
@@ -23,6 +25,8 @@ class Profile {
     this.bio,
     this.profilePicturePath,
     this.birthday,
+    this.github,
+    this.linkedin,
   });
 
   Profile copyWith({
@@ -35,6 +39,8 @@ class Profile {
     String? bio,
     String? profilePicturePath,
     DateTime? birthday,
+    String? github,
+    String? linkedin,
   }) {
     return Profile(
       uid: uid,
@@ -47,6 +53,8 @@ class Profile {
       bio: bio ?? this.bio,
       profilePicturePath: profilePicturePath ?? this.profilePicturePath,
       birthday: birthday ?? this.birthday,
+      github: github ?? this.github,
+      linkedin: linkedin ?? this.linkedin,
     );
   }
 
@@ -62,6 +70,8 @@ class Profile {
       'profilePicturePath': profilePicturePath,
       'birthday': birthday != null ? Timestamp.fromDate(birthday!) : null,
       'role': role,
+      'github': github,
+      'linkedin': linkedin,
     };
   }
 
@@ -79,6 +89,8 @@ class Profile {
           ? (map['birthday'] as Timestamp).toDate()
           : null,
       role: map['role'] ?? 'member',
+      github: map['github'],
+      linkedin: map['linkedin'],
     );
   }
 }

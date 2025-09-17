@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:my_portofolio_app/providers/profile_provider.dart';
 import 'package:my_portofolio_app/screens/edit_profile_screen.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -13,6 +14,13 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   bool _isInitialized = false;
+
+  Future<void> _openUrl(String url) async {
+    final Uri uri = Uri.parse(url);
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      throw 'Could not launch $url';
+    }
+  }
 
   @override
   void didChangeDependencies() {
@@ -92,6 +100,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             children: [
               buildProfileHeader(profile),
               buildProfileInfo(profile),
+              buildProfileLinks(profile),
               buildProfileBio(profile),
             ],
           ),
@@ -258,6 +267,87 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         : FontStyle.normal,
                   ),
                 ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildProfileLinks(profile) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      margin: const EdgeInsets.only(bottom: 10),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.blueAccent),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Icon(Icons.link, color: Colors.blueGrey),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  "Social Media",
+                  style: const TextStyle(
+                    color: Colors.deepPurple,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                if (profile.github != null ||
+                    profile.linkedin != null ||
+                    profile.email != null) ...[
+                  Row(
+                    children: [
+                      if (profile.email != null)
+                        IconButton(
+                          onPressed: () => _openUrl("mailto:${profile.email}"),
+                          icon: Icon(
+                            Icons.email,
+                            color: Colors.blueAccent,
+                            size: 30,
+                          ),
+                        ),
+
+                      if (profile.github != null && profile.github!.isNotEmpty)
+                        InkWell(
+                          child: Image.asset(
+                            "assets/images/logo/github.png",
+                            width: 30,
+                            height: 30,
+                          ),
+                          onTap: () => _openUrl(profile.github),
+                        ),
+
+                      SizedBox(width: 10),
+                      if (profile.linkedin != null &&
+                          profile.linkedin!.isNotEmpty)
+                        InkWell(
+                          child: Image.asset(
+                            "assets/images/logo/linkedin.png",
+                            width: 30,
+                            height: 30,
+                          ),
+                          onTap: () => _openUrl(profile.linkedin),
+                        ),
+                    ],
+                  ),
+                ] else ...[
+                  const Text(
+                    "No Data",
+                    style: TextStyle(
+                      color: Colors.blueGrey,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ],
               ],
             ),
           ),

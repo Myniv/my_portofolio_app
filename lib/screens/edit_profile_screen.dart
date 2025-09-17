@@ -370,6 +370,22 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 icon: Icons.location_on,
                 maxLines: 2,
               ),
+              const SizedBox(height: 16),
+
+              _buildTextField(
+                controller: provider.githubController,
+                label: "Github",
+                icon: Icons.link,
+                maxLines: 2,
+              ),
+              const SizedBox(height: 16),
+
+              _buildTextField(
+                controller: provider.linkedinController,
+                label: "LinkedIn",
+                icon: Icons.link,
+                maxLines: 2,
+              ),
 
               const SizedBox(height: 16),
 

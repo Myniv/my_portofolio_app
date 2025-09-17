@@ -42,6 +42,8 @@ class ProfileProvider extends ChangeNotifier {
   final phoneController = TextEditingController();
   final addressController = TextEditingController();
   final bioController = TextEditingController();
+  final linkedinController = TextEditingController();
+  final githubController = TextEditingController();
 
   Future<void> loadAllProfiles() async {
     _setLoading(true);
@@ -63,7 +65,6 @@ class ProfileProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Added profile2 methods
   void setProfile2(Profile profile) {
     _profile2 = profile;
     _selectedImageFile = null;
@@ -87,6 +88,8 @@ class ProfileProvider extends ChangeNotifier {
         phoneController.text = _profile!.phone ?? '';
         addressController.text = _profile!.address ?? '';
         bioController.text = _profile!.bio ?? '';
+        linkedinController.text = _profile!.linkedin ?? '';
+        githubController.text = _profile!.github ?? '';
       }
       _errorMessage = null;
       _selectedImageFile = null;
@@ -120,6 +123,8 @@ class ProfileProvider extends ChangeNotifier {
         profilePicturePath: _profile!.profilePicturePath,
         birthday: _profile!.birthday,
         role: _profile!.role,
+        github: githubController.text,
+        linkedin: linkedinController.text,
       );
 
       await _profileService.updateUserProfile(updated);
@@ -135,7 +140,6 @@ class ProfileProvider extends ChangeNotifier {
     }
   }
 
-  // Added updateProfile2 method
   Future<void> updateProfile2() async {
     if (_profile2 == null) {
       _errorMessage = "No profile2 loaded for editing";
@@ -167,13 +171,14 @@ class ProfileProvider extends ChangeNotifier {
         bio: bioController.text,
         profilePicturePath: updatedPhotoPath,
         birthday: _profile2!.birthday,
+        github: githubController.text,
+        linkedin: linkedinController.text,
       );
 
       await _profileService.updateUserProfile(updated);
 
       _profile2 = updated;
 
-      // Update in allProfiles list
       final index = _allProfiles.indexWhere((p) => p.uid == updated.uid);
       if (index != -1) {
         _allProfiles[index] = updated;
@@ -218,6 +223,8 @@ class ProfileProvider extends ChangeNotifier {
     phoneController.dispose();
     addressController.dispose();
     bioController.dispose();
+    linkedinController.dispose();
+    githubController.dispose();
     super.dispose();
   }
 
