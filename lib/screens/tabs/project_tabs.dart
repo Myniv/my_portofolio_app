@@ -1,9 +1,11 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:my_portofolio_app/providers/profile_provider.dart';
 import 'package:my_portofolio_app/providers/project_provider.dart';
 import 'package:my_portofolio_app/screens/add_project_screen.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 class ProjectTabs extends StatelessWidget {
   final String filter;
@@ -51,6 +53,7 @@ class ProjectTabs extends StatelessWidget {
                         // proj.technologies ?? [],
                         context,
                         proj.id!,
+                        proj.project_url ?? "",
                       );
                     },
                   ),
@@ -79,6 +82,7 @@ class ProjectTabs extends StatelessWidget {
     // List<String> technologies,
     BuildContext context,
     int index,
+    String projectLink,
   ) {
     return InkWell(
       onTap: () {},
@@ -93,7 +97,7 @@ class ProjectTabs extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  height: 100,
+                  height: 150,
                   width: double.infinity,
                   decoration: BoxDecoration(
                     image: DecorationImage(
@@ -222,65 +226,69 @@ class ProjectTabs extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.red.withOpacity(0.8),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: IconButton(
+                  if (projectLink.isNotEmpty) ...[
+                    IconButton(
                       icon: const Icon(
-                        Icons.delete,
-                        color: Colors.white,
-                        // size: 20,
-                      ),
-                      onPressed: () async {
-                        return await showDialog(
-                          context: context,
-                          builder: (ctx) => AlertDialog(
-                            title: Text("Delete Project"),
-                            content: Text(
-                              "Are you sure you want to delete this project?",
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.of(ctx).pop(false),
-                                child: Text("Cancel"),
-                              ),
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.of(ctx).pop(true);
-                                  context.read<ProjectProvider>().deleteProject(
-                                    index,
-                                  );
-                                },
-                                child: Text("Delete"),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 4),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.blue.withOpacity(0.8),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: IconButton(
-                      icon: const Icon(
-                        Icons.edit,
+                        Icons.share,
                         color: Colors.white,
                         // size: 20,
                       ),
                       onPressed: () {
-                        Navigator.pushNamed(
-                          context,
-                          '/addProject',
-                          arguments: {'index': index, 'category': null},
+                        Share.share(
+                          projectLink,
+                          subject: "Check Out My Project : $title",
                         );
                       },
                     ),
+                  ],
+
+                  IconButton(
+                    icon: const Icon(
+                      Icons.delete,
+                      color: Colors.white,
+                      // size: 20,
+                    ),
+                    onPressed: () async {
+                      return await showDialog(
+                        context: context,
+                        builder: (ctx) => AlertDialog(
+                          title: Text("Delete Project"),
+                          content: Text(
+                            "Are you sure you want to delete this project?",
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(ctx).pop(false),
+                              child: Text("Cancel"),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(ctx).pop(true);
+                                context.read<ProjectProvider>().deleteProject(
+                                  index,
+                                );
+                              },
+                              child: Text("Delete"),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+
+                  IconButton(
+                    icon: const Icon(
+                      Icons.edit,
+                      color: Colors.white,
+                      // size: 20,
+                    ),
+                    onPressed: () {
+                      Navigator.pushNamed(
+                        context,
+                        '/addProject',
+                        arguments: {'index': index, 'category': null},
+                      );
+                    },
                   ),
                 ],
               ),

@@ -108,7 +108,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<ProfileProvider>(context);
+    final provider = Provider.of<ProfileProvider>(context, listen: false);
     final currentProfile = _getCurrentProfile(provider);
 
     if (provider.isLoading && currentProfile == null) {

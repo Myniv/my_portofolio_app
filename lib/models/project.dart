@@ -6,6 +6,7 @@ class Project {
   String description;
   String? image_path;
   String? project_url;
+  String? user_id;
   // List<String>? technologies;
 
   Project({
@@ -16,6 +17,7 @@ class Project {
     this.description = '',
     this.image_path,
     this.project_url,
+    this.user_id,
     // this.technologies,
   });
 
@@ -29,6 +31,7 @@ class Project {
     description: json["description"] ?? '',
     image_path: json["image_path"],
     project_url: json["project_url"],
+    user_id: json["user_id"],
     // technologies: json["technologies"] != null
     //     ? List<String>.from(json["technologies"].map((x) => x))
     //     : null,
@@ -42,6 +45,7 @@ class Project {
     "description": description,
     "image_path": image_path,
     "project_url": project_url,
+    "user_id": user_id,
     // "technologies": technologies != null ? List<dynamic>.from(technologies!.map((x) => x)) : null,
   };
 }

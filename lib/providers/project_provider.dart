@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:my_portofolio_app/models/project.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:my_portofolio_app/providers/profile_provider.dart';
 import 'package:my_portofolio_app/services/project_service.dart';
 
 class ProjectProvider with ChangeNotifier {
@@ -28,6 +29,9 @@ class ProjectProvider with ChangeNotifier {
   String? get errorMessage => _errorMessage;
 
   final ProjectService _projectService = ProjectService();
+  final ProfileProvider profileProvider;
+
+  ProjectProvider(this.profileProvider);
 
   Future<void> fetchProjects() async {
     _errorMessage = null;
@@ -35,7 +39,17 @@ class ProjectProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      _projects = await _projectService.fetchProjects();
+      final role = profileProvider?.profile?.role;
+      final uid = profileProvider?.profile?.uid;
+
+      print("ProjectProvider -> role: $role, uid: $uid");
+      if (profileProvider.profile!.role == 'member') {
+        _projects = await _projectService.getProjectByUserId(
+          profileProvider.profile!.uid,
+        );
+      } else {
+        _projects = await _projectService.fetchProjects();
+      }
     } catch (e) {
       _errorMessage = "Failed to fetch projects";
       print(e);
@@ -134,6 +148,7 @@ class ProjectProvider with ChangeNotifier {
         category: project.category,
         completion_date: project.completion_date,
         image_path: project.image_path,
+        user_id: project.user_id,
       );
 
       notifyListeners();
@@ -145,6 +160,7 @@ class ProjectProvider with ChangeNotifier {
     notifyListeners();
 
     try {
+      projectData.user_id = projectData.user_id ?? profileProvider.profile!.uid;
       projectData.title = titleController.text;
       projectData.description = descriptionController.text;
       projectData.project_url = linkController.text.isEmpty
@@ -187,10 +203,8 @@ class ProjectProvider with ChangeNotifier {
 
   Future<void> deleteProject(int projectId) async {
     try {
-      // Call the API to delete the project
       await _projectService.deleteProject(projectId);
 
-      // Remove from local list
       _projects.removeWhere((project) => project.id == projectId);
 
       notifyListeners();
@@ -198,7 +212,7 @@ class ProjectProvider with ChangeNotifier {
       _errorMessage = "Failed to delete project: $e";
       print(_errorMessage);
       notifyListeners();
-      rethrow; // Re-throw to let the UI handle the error
+      rethrow;
     }
   }
 }

@@ -23,9 +23,24 @@ class ProjectService {
     }
   }
 
+  Future<List<Project>> getProjectByUserId(String userId) async {
+    try {
+      final response = await http.get(Uri.parse('${baseUrl}user/$userId'));
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        return data.map((json) => Project.fromJson(json)).toList();
+      } else {
+        throw Exception('Failed to load projects');
+      }
+    } catch (e) {
+      print("Error fetching projects: $e");
+      return [];
+    }
+  }
+
   Future<Project> getProjectById(int id) async {
     try {
-      final response = await http.get(Uri.parse('$baseUrl/$id'));
+      final response = await http.get(Uri.parse('${baseUrl}$id'));
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         return Project.fromJson(data);
@@ -87,7 +102,7 @@ class ProjectService {
         );
       }
     } catch (e) {
-      rethrow; 
+      rethrow;
     }
   }
 }

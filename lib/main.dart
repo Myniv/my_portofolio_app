@@ -44,7 +44,11 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => ProfileProvider()),
-        ChangeNotifierProvider(create: (_) => ProjectProvider()),
+        // ChangeNotifierProvider(create: (_) => ProjectProvider()),
+        ChangeNotifierProxyProvider<ProfileProvider, ProjectProvider>(
+          create: (_) => ProjectProvider(ProfileProvider()),
+          update: (_, profileProvider, __) => ProjectProvider(profileProvider),
+        ),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
       ],
       child: MainApp(),
