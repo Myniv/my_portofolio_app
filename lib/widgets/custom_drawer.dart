@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_portofolio_app/providers/auth_provider.dart';
+import 'package:my_portofolio_app/providers/profile_provider.dart';
 import 'package:my_portofolio_app/routes.dart';
 import 'package:provider/provider.dart';
 
@@ -55,6 +56,12 @@ class CustomDrawer extends StatelessWidget {
             leading: Icon(Icons.logout, color: Colors.white),
             title: Text('Logout'),
             onTap: () async {
+              final profileProvider = Provider.of<ProfileProvider>(
+                context,
+                listen: false,
+              );
+              profileProvider.clearProfile();
+
               await authProvider.signOut();
               if (context.mounted) {
                 Navigator.pushReplacementNamed(context, AppRoutes.login);
